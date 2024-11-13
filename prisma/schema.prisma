@@ -12,3 +12,58 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String
+  phoneNumber  String?
+  status       String
+  password     String
+  role         String
+  profileImage String?
+  Teacher      Teacher[]
+  Student      Student[]
+}
+
+model Teacher {
+  user            User    @relation(fields: [id], references: [id])
+  id              String  @id
+  expertise       String
+  bachelorsDegree String?
+  masterDegree    String?
+  doctorateDegree String?
+  description     String?
+  nig             String
+}
+
+model Student {
+  user               User     @relation(fields: [id], references: [id])
+  id                 String   @id
+  birthDate          DateTime
+  nis                String
+  description        String?
+  fatherName         String?
+  motherName         String?
+  guardianName       String?
+  contactPhoneNumber String
+}
+
+model Subject {
+  id        String  @id @default(uuid())
+  name      String
+  grade     Int
+  startYear Int
+  endYear   Int
+  status    String
+  Class     Class[]
+}
+
+model Class {
+  id        String   @id @default(uuid())
+  title     String
+  type      String
+  status    String
+  subject   Subject? @relation(fields: [subjectId], references: [id])
+  subjectId String?
+}
