@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(uuid())
+  id           String   @id @default(uuid())
   name         String
   email        String
   phoneNumber  String?
@@ -22,13 +22,13 @@ model User {
   password     String
   role         String
   profileImage String?
-  Teacher      Teacher[]
-  Student      Student[]
+  teacher      Teacher?
+  student      Student?
 }
 
 model Teacher {
-  user            User    @relation(fields: [id], references: [id])
   id              String  @id
+  user            User    @relation(fields: [id], references: [id])
   expertise       String
   bachelorsDegree String?
   masterDegree    String?
@@ -38,8 +38,8 @@ model Teacher {
 }
 
 model Student {
-  user               User     @relation(fields: [id], references: [id])
   id                 String   @id
+  user               User     @relation(fields: [id], references: [id])
   birthDate          DateTime
   nis                String
   description        String?
@@ -47,6 +47,7 @@ model Student {
   motherName         String?
   guardianName       String?
   contactPhoneNumber String
+  classes            Class[]
 }
 
 model Subject {
@@ -56,14 +57,14 @@ model Subject {
   startYear Int
   endYear   Int
   status    String
-  Class     Class[]
+  classes   Class[]
 }
 
 model Class {
-  id        String   @id @default(uuid())
-  title     String
-  type      String
-  status    String
-  subject   Subject? @relation(fields: [subjectId], references: [id])
-  subjectId String?
+  id       String    @id @default(uuid())
+  title    String
+  type     String
+  status   String
+  subjects Subject[]
+  students Student[]
 }
