@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
 }
 
 datasource db {
@@ -16,7 +17,7 @@ datasource db {
 model User {
   id           String   @id @default(uuid())
   name         String
-  email        String
+  email        String   @unique
   phoneNumber  String?
   status       String
   password     String
