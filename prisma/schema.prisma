@@ -29,7 +29,7 @@ model User {
 model Teacher {
   id              String  @id
   user            User    @relation(fields: [id], references: [id])
-  expertise       String
+  expertise       String?
   bachelorsDegree String?
   masterDegree    String?
   doctorateDegree String?
