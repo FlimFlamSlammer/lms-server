@@ -12,6 +12,14 @@ class UserService {
 			},
 		});
 	}
+
+	getById(id: string) {
+		return prisma.user.findFirst({
+			where: {
+				id,
+			},
+		});
+	}
 }
 
 export const userService = new UserService();
