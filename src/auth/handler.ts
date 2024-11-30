@@ -3,6 +3,7 @@ import { userService } from "src/user/service";
 import { withValidation } from "src/validation";
 import { z } from "zod";
 import { authService } from "./service";
+import { NextFunction, Request, Response } from "express";
 
 const loginBodySchema = z.object({
 	email: z.string().email(),
@@ -28,3 +29,20 @@ export const loginHandler = withValidation(
 		}
 	}
 );
+
+export function logoutHandler(req: Request, res: Response, next: NextFunction) {
+	res.clearCookie("authToken");
+	res.status(StatusCodes.OK).json({
+		message: "Logged out successfully.",
+	});
+}
+
+export function getUserHandler(
+	req: Request,
+	res: Response,
+	next: NextFunction
+) {
+	res.status(StatusCodes.OK).json({
+		data: req.body.user,
+	});
+}

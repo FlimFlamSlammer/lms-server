@@ -4,14 +4,19 @@ import { StatusCodes } from "http-status-codes";
 import { authService } from "./service";
 
 export function authMiddleware(
-	role: "student" | "teacher" | "admin" | "superadmin"
+	roles: ("student" | "teacher" | "admin" | "superadmin")[] = []
 ) {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const authToken = req.cookies.authToken;
 			const user = await authService.verifyAuthToken(authToken);
 
-			if (user.role != role) {
+			if (
+				roles &&
+				!roles.find((role) => {
+					return role == user.role;
+				})
+			) {
 				throw createErrorWithMessage(
 					StatusCodes.FORBIDDEN,
 					"User does not have permission."
