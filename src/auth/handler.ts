@@ -1,6 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { userService } from "src/user/service";
-import { withValidation } from "src/validation";
+import { withValidation } from "../validation";
 import { z } from "zod";
 import { authService } from "./service";
 import { NextFunction, Request, Response } from "express";

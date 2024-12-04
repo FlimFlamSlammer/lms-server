@@ -1,6 +1,6 @@
 import express from "express";
 import { getUserHandler, loginHandler, logoutHandler } from "./handler";
-import { SetupRouter } from "src/router";
+import { SetupRouter } from "../router";
 import { authMiddleware } from "./middleware";
 
 export const setupAuthRouter: SetupRouter = (router) => {

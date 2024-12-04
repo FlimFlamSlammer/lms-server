@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { createErrorWithMessage } from "src/error";
+import { createErrorWithMessage } from "../error";
 import { StatusCodes } from "http-status-codes";
 import { authService } from "./service";
 

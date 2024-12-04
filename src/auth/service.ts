@@ -1,13 +1,12 @@
-import { userService } from "src/user/service";
+import { userService } from "../user/service";
 import { prismaInstance } from "../prisma-client";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { createErrorWithMessage, createFieldError } from "src/error";
+import { createErrorWithMessage, createFieldError } from "../error";
 import { StatusCodes } from "http-status-codes";
 import { create } from "domain";
 import { User } from "@prisma/client";
 
-const JWT_SECRET = "secret12321";
 const AUTH_TOKEN_EXPIRES_IN = "2d";
 
 const prisma = prismaInstance;
@@ -35,7 +34,7 @@ class AuthService {
 			{
 				id: user.id,
 			},
-			JWT_SECRET,
+			process.env.JWT_SECRET || "",
 			{
 				expiresIn: AUTH_TOKEN_EXPIRES_IN,
 			}
@@ -53,7 +52,9 @@ class AuthService {
 		}
 
 		try {
-			const userId = (jwt.verify(authToken, JWT_SECRET) as JwtPayload).id;
+			const userId = (
+				jwt.verify(authToken, process.env.JWT_SECRET || "") as JwtPayload
+			).id;
 			const user = await userService.getById(userId);
 
 			if (!user) {
