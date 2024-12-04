@@ -1,4 +1,4 @@
-import { prismaInstance } from "../prisma-client";
+import { prismaInstance } from "~/prisma-client";
 
 const prisma = prismaInstance;
 

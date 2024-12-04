@@ -3,18 +3,23 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "npx tsc",
-    "start": "npm run build && node ./build/src/index.js",
-    "seed": "npx ts-node ./prisma/seed.ts"
+    "build": "swc ./src -d ./build",
+    "start": "node ./build/src/index.js",
+    "build:dev": "swc ./src -w -d ./build-dev",
+    "dev": "concurrently \"npm:build:dev\" \"nodemon ./build-dev/src/index.js\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@swc/cli": "^0.5.2",
+    "@swc/core": "^1.10.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.8",
     "@types/node": "^22.7.5",
+    "concurrently": "^9.1.0",
+    "nodemon": "^3.1.7",
     "prisma": "^5.22.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
