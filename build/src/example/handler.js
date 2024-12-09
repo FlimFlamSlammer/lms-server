@@ -1,21 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getExampleHandler = void 0;
-const validation_1 = require("../validation");
-const validation_2 = require("./validation");
-const service_1 = require("./service");
-exports.getExampleHandler = (0, validation_1.withValidation)({
-    paramsSchema: validation_2.getExampleQuerySchema,
-}, (req, res, next) => {
+import { withValidation } from "../validation";
+import { getExampleQuerySchema } from "./validation";
+import { exampleService } from "./service";
+export var getExampleHandler = withValidation({
+    paramsSchema: getExampleQuerySchema
+}, function(req, res, next) {
     try {
-        const { id } = req.query;
-        const data = service_1.exampleService.list();
+        var id = req.query.id;
+        var data = exampleService.list();
         res.json({
             success: true,
-            data,
+            data: data
         });
-    }
-    catch (error) {
-        next?.(error);
+    } catch (error) {
+        next === null || next === void 0 ? void 0 : next(error);
     }
 });
