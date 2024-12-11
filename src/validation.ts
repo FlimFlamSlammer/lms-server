@@ -1,4 +1,4 @@
-import { Handler, NextFunction } from "express";
+import { Handler } from "express";
 import { z } from "zod";
 import { createErrorWithMessage, createFieldError } from "./error";
 import { StatusCodes } from "http-status-codes";

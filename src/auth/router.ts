@@ -1,14 +1,14 @@
 import express from "express";
 import { getUserHandler, loginHandler, logoutHandler } from "./handler";
-import { SetupRouter } from "../router";
 import { authMiddleware } from "./middleware";
+import { SetupRouter } from "~/router";
 
 export const setupAuthRouter: SetupRouter = (router) => {
-	const authRouter = express.Router();
+  const authRouter = express.Router();
 
-	authRouter.post("/login", loginHandler);
-	authRouter.post("/logout", logoutHandler);
-	authRouter.get("/user", authMiddleware(), getUserHandler);
+  authRouter.post("/login", loginHandler);
+  authRouter.post("/logout", logoutHandler);
+  authRouter.get("/user", authMiddleware(), getUserHandler);
 
-	router.use("/auth", authRouter);
+  router.use("/auth", authRouter);
 };

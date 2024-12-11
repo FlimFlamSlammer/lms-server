@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { createErrorWithMessage } from "../error";
 import { StatusCodes } from "http-status-codes";
 import { authService } from "./service";
-import { UserRole } from "src/user/service";
+import { UserRole } from "~/users/service";
+import { createErrorWithMessage } from "~/error";
 
-export function authMiddleware(roles: UserRole[] = []) {
+export const authMiddleware = (roles: UserRole[] = []) => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const authToken = req.cookies.authToken;
@@ -28,4 +28,4 @@ export function authMiddleware(roles: UserRole[] = []) {
 			next(error);
 		}
 	};
-}
+};

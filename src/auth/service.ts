@@ -1,15 +1,9 @@
-import { userService } from "../user/service";
-import { prismaInstance } from "../prisma-client";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { createErrorWithMessage, createFieldError } from "../error";
 import { StatusCodes } from "http-status-codes";
-import { create } from "domain";
 import { User } from "@prisma/client";
-
-const AUTH_TOKEN_EXPIRES_IN = "2d";
-
-const prisma = prismaInstance;
+import { createErrorWithMessage, createFieldError } from "~/error";
+import { userService } from "~/users/service";
 
 class AuthService {
 	constructor() {}
@@ -36,7 +30,7 @@ class AuthService {
 			},
 			process.env.JWT_SECRET || "",
 			{
-				expiresIn: AUTH_TOKEN_EXPIRES_IN,
+				expiresIn: "2d",
 			}
 		);
 

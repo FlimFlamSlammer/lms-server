@@ -1,11 +1,11 @@
 import express from "express";
 import { errorMiddleware } from "./error";
 import cookieParser from "cookie-parser";
-import { setupExampleRouter } from "./example/router";
 import { setupAuthRouter } from "./auth/router";
+import { setupUsersRouter } from "./users/router";
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -13,6 +13,7 @@ app.use(cookieParser());
 const baseRouter = express.Router();
 
 setupAuthRouter(baseRouter);
+setupUsersRouter(baseRouter);
 
 app.use("/api/v1", baseRouter);
 
