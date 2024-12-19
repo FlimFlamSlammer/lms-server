@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { StatusCodes } from "http-status-codes";
-import { User } from "@prisma/client";
 import { createErrorWithMessage, createFieldError } from "~/error";
 import { userService } from "~/users/service";
 
@@ -37,7 +36,7 @@ class AuthService {
 		return authToken;
 	}
 
-	async verifyAuthToken(authToken: string): Promise<User> {
+	async verifyAuthToken(authToken: string) {
 		if (!authToken) {
 			throw createErrorWithMessage(
 				StatusCodes.UNAUTHORIZED,

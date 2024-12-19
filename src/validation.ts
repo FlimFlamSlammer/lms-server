@@ -33,20 +33,19 @@ export const withValidation = (
 			handler(req, res, next);
 		} catch (error) {
 			if (error instanceof z.ZodError) {
-				const fields = error.errors.reduce(
-					(acc, { path, message }) => ({
-						...acc,
-						[path.join(".")]: message,
-					}),
-					{}
-				);
-
-				const response = {
-					status: 400,
-					error: fields,
-				};
-
-				throw createFieldError(fields);
+				// const fields = error.errors.reduce(
+				// 	(acc, { path, message }) => ({
+				// 		...acc,
+				// 		[path.join(".")]: message,
+				// 	}),
+				// 	{}
+				// );
+				// const response = {
+				// 	status: 400,
+				// 	error: fields,
+				// };
+				// throw createFieldError(fields);
+				next(error);
 			}
 
 			throw createErrorWithMessage(

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { authService } from "./service";
-import { UserRole } from "~/users/service";
+import { UserRole } from "~/users/types";
 import { createErrorWithMessage } from "~/error";
 
 export const authMiddleware = (roles: UserRole[] = []) => {
@@ -11,7 +11,7 @@ export const authMiddleware = (roles: UserRole[] = []) => {
 			const user = await authService.verifyAuthToken(authToken);
 
 			if (
-				roles &&
+				roles.length &&
 				!roles.find((role) => {
 					return role == user.role;
 				})

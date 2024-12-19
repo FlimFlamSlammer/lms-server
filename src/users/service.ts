@@ -3,165 +3,165 @@ import { prismaInstance } from "~/prisma-client";
 import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
 import {
-  User as PrismaUser,
-  Student as PrismaStudent,
-  Teacher as PrismaTeacher,
-} from "@prisma/client";
-import { OptionalNullable } from "~/utils";
+	CreateStudentDTO,
+	CreateTeacherDTO,
+	CreateUserDTO,
+	Student,
+	Teacher,
+	UpdateStudentDTO,
+	UpdateTeacherDTO,
+	UpdateUserDTO,
+	User,
+	UserRoles,
+} from "./types";
 
 const prisma = prismaInstance;
 
-export const validUserRoles = [
-  "student",
-  "teacher",
-  "admin",
-  "superadmin",
-] as const;
-export type UserRole = (typeof validUserRoles)[number];
-
-export const validStatuses = ["active", "inactive"] as const;
-
-export type User = OptionalNullable<PrismaUser> & {
-  role: UserRole;
+const addRoleData = async (user: User) => {
+	const userCopy = user;
+	if (user.role == UserRoles.STUDENT) {
+		userCopy.roleData = (await prisma.student.findFirst({
+			where: {
+				id: user.id,
+			},
+		})) as Student;
+	}
+	if (user.role == UserRoles.TEACHER) {
+		userCopy.roleData = (await prisma.teacher.findFirst({
+			where: {
+				id: user.id,
+			},
+		})) as Teacher;
+	}
+	return userCopy;
 };
-export type Student = OptionalNullable<PrismaStudent>;
-export type Teacher = OptionalNullable<PrismaTeacher>;
-
-type CreateUserDTO = Omit<User, "status" | "id">;
-type CreateStudentDTO = Omit<Student, "id">;
-type CreateTeacherDTO = Omit<Teacher, "id">;
-
-type UpdateUserDTO = Partial<Omit<User, "role" | "id">>;
-type UpdateStudentDTO = Partial<CreateStudentDTO>;
-type UpdateTeacherDTO = Partial<CreateTeacherDTO>;
 
 class UserService {
-  constructor() {}
+	constructor() {}
 
-  getByEmail(email: string) {
-    return prisma.user.findFirst({
-      where: {
-        email,
-      },
-    }) as Promise<User>;
-  }
+	async getByEmail(email: string) {
+		let user = (await prisma.user.findFirst({
+			where: {
+				email,
+			},
+		})) as User;
+		user = user && (await addRoleData(user));
+		return user;
+	}
 
-  getById(id: string) {
-    return prisma.user.findFirst({
-      where: {
-        id,
-      },
-    }) as Promise<User>;
-  }
+	async getById(id: string) {
+		let user = (await prisma.user.findFirst({
+			where: {
+				id,
+			},
+		})) as User;
+		user = user && (await addRoleData(user));
+		return user;
+	}
 
-  getAll() {
-    return prisma.user.findMany() as Promise<User[]>;
-  }
+	async getAll() {
+		const users = (await prisma.user.findMany()) as User[];
 
-  async create(
-    userData: CreateUserDTO,
-    roleData: CreateStudentDTO | CreateTeacherDTO | null = null
-  ) {
-    if (await this.getByEmail(userData.email)) {
-      throw createFieldError({
-        email: "Email is already registered!",
-      });
-    }
+		for (let i = 0; i < users.length; i++) {
+			users[i] = await addRoleData(users[i]);
+		}
 
-    const id = nanoid();
+		return users;
+	}
 
-    await prisma.$transaction(async (tx) => {
-      await tx.user.create({
-        data: {
-          id,
-          status: "active",
-          ...userData,
-        },
-      });
+	async create(
+		userData: CreateUserDTO,
+		roleData: CreateStudentDTO | CreateTeacherDTO | null = null
+	) {
+		if (await this.getByEmail(userData.email)) {
+			throw createFieldError({
+				email: "Email is already registered!",
+			});
+		}
 
-      if (userData.role == "student") {
-        if (!(roleData && "nis" in roleData)) {
-          throw createFieldError({
-            roleData: "Invalid role data!",
-          });
-        }
+		const id = nanoid();
 
-        await tx.student.create({
-          data: {
-            id,
-            ...roleData,
-          },
-        });
-      } else if (userData.role == "teacher") {
-        if (!(roleData && "nig" in roleData)) {
-          throw createFieldError({
-            roleData: "Invalid role data!",
-          });
-        }
+		await prisma.$transaction(async (tx) => {
+			await tx.user.create({
+				data: {
+					id,
+					status: "active",
+					...userData,
+				},
+			});
 
-        await tx.teacher.create({
-          data: {
-            id,
-            ...roleData,
-          },
-        });
-      }
-    });
-  }
+			if (userData.role == UserRoles.STUDENT) {
+				if (!(roleData && "nis" in roleData)) {
+					throw createFieldError({
+						roleData: "Invalid role data!",
+					});
+				}
 
-  async update(
-    id: string,
-    userData: UpdateUserDTO,
-    roleData: UpdateStudentDTO | UpdateTeacherDTO | null = null
-  ) {
-    if (userData.password) {
-      userData.password = bcrypt.hashSync(userData.password);
-    }
+				await tx.student.create({
+					data: {
+						id,
+						...roleData,
+					},
+				});
+			} else if (userData.role == UserRoles.TEACHER) {
+				if (!(roleData && "nig" in roleData)) {
+					throw createFieldError({
+						roleData: "Invalid role data!",
+					});
+				}
 
-    const operations: Promise<any>[] = [];
+				await tx.teacher.create({
+					data: {
+						id,
+						...roleData,
+					},
+				});
+			}
+		});
+	}
 
-    operations.push(
-      prisma.user.update({
-        where: {
-          id,
-        },
-        data: userData,
-      })
-    );
+	async update(
+		id: string,
+		userData: UpdateUserDTO,
+		roleData: UpdateStudentDTO | UpdateTeacherDTO | null = null
+	) {
+		if (userData.password) {
+			userData.password = bcrypt.hashSync(userData.password);
+		}
 
-    if (!roleData) {
-      await Promise.all(operations);
-      return;
-    }
+		await prisma.$transaction(async (tx) => {
+			await tx.user.update({
+				where: {
+					id,
+				},
+				data: userData,
+			});
 
-    const user = await this.getById(id);
+			if (!roleData) return;
 
-    if (user.role == "teacher") {
-      operations.push(
-        prisma.teacher.update({
-          where: {
-            id,
-          },
-          data: {
-            ...roleData,
-          },
-        })
-      );
-    } else if (user.role == "student") {
-      operations.push(
-        prisma.student.update({
-          where: {
-            id,
-          },
-          data: {
-            ...roleData,
-          },
-        })
-      );
-    }
+			const user = await this.getById(id);
 
-    await Promise.all(operations);
-  }
+			if (user.role == UserRoles.TEACHER) {
+				await tx.teacher.update({
+					where: {
+						id,
+					},
+					data: {
+						...roleData,
+					},
+				});
+			} else if (user.role == UserRoles.STUDENT) {
+				await tx.student.update({
+					where: {
+						id,
+					},
+					data: {
+						...roleData,
+					},
+				});
+			}
+		});
+	}
 }
 
 export const userService = new UserService();
