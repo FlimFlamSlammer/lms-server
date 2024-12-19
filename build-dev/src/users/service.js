@@ -13,6 +13,7 @@ var _prismaclient = require("../prisma-client");
 var _bcryptjs = /*#__PURE__*/ _interop_require_default(require("bcryptjs"));
 var _nanoid = require("nanoid");
 var _types = require("./types");
+var _httpstatuscodes = require("http-status-codes");
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
     try {
         var info = gen[key](arg);
@@ -90,6 +91,30 @@ function _object_spread(target) {
         }
         ownKeys.forEach(function(key) {
             _define_property(target, key, source[key]);
+        });
+    }
+    return target;
+}
+function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+    if (Object.getOwnPropertySymbols) {
+        var symbols = Object.getOwnPropertySymbols(object);
+        if (enumerableOnly) {
+            symbols = symbols.filter(function(sym) {
+                return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+            });
+        }
+        keys.push.apply(keys, symbols);
+    }
+    return keys;
+}
+function _object_spread_props(target, source) {
+    source = source != null ? source : {};
+    if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+        ownKeys(Object(source)).forEach(function(key) {
+            Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
         });
     }
     return target;
@@ -247,10 +272,62 @@ var UserService = /*#__PURE__*/ function() {
     }
     _create_class(UserService, [
         {
+            key: "getUserDetails",
+            value: function getUserDetails(user) {
+                return _async_to_generator(function() {
+                    return _ts_generator(this, function(_state) {
+                        switch(_state.label){
+                            case 0:
+                                if (!(user.role == _types.UserRoles.STUDENT)) return [
+                                    3,
+                                    2
+                                ];
+                                return [
+                                    4,
+                                    prisma.student.findFirst({
+                                        where: {
+                                            id: user.id
+                                        }
+                                    })
+                                ];
+                            case 1:
+                                return [
+                                    2,
+                                    _state.sent()
+                                ];
+                            case 2:
+                                if (!(user.role == _types.UserRoles.TEACHER)) return [
+                                    3,
+                                    4
+                                ];
+                                return [
+                                    4,
+                                    prisma.teacher.findFirst({
+                                        where: {
+                                            id: user.id
+                                        }
+                                    })
+                                ];
+                            case 3:
+                                return [
+                                    2,
+                                    _state.sent()
+                                ];
+                            case 4:
+                                return [
+                                    2
+                                ];
+                        }
+                    });
+                })();
+            }
+        },
+        {
             key: "getByEmail",
             value: function getByEmail(email) {
+                var _this = this;
                 return _async_to_generator(function() {
-                    var user, _tmp;
+                    var user, details;
                     return _ts_generator(this, function(_state) {
                         switch(_state.label){
                             case 0:
@@ -264,23 +341,20 @@ var UserService = /*#__PURE__*/ function() {
                                 ];
                             case 1:
                                 user = _state.sent();
-                                _tmp = user;
-                                if (!_tmp) return [
-                                    3,
-                                    3
-                                ];
+                                if (!user) {
+                                    throw (0, _error.createErrorWithMessage)(_httpstatuscodes.StatusCodes.NOT_FOUND, "Email not found");
+                                }
                                 return [
                                     4,
-                                    addRoleData(user)
+                                    _this.getUserDetails(user)
                                 ];
                             case 2:
-                                _tmp = _state.sent();
-                                _state.label = 3;
-                            case 3:
-                                user = _tmp;
+                                details = _state.sent();
                                 return [
                                     2,
-                                    user
+                                    details ? _object_spread_props(_object_spread({}, user), {
+                                        details: details
+                                    }) : user
                                 ];
                         }
                     });
@@ -290,8 +364,9 @@ var UserService = /*#__PURE__*/ function() {
         {
             key: "getById",
             value: function getById(id) {
+                var _this = this;
                 return _async_to_generator(function() {
-                    var user, _tmp;
+                    var user, details;
                     return _ts_generator(this, function(_state) {
                         switch(_state.label){
                             case 0:
@@ -305,23 +380,20 @@ var UserService = /*#__PURE__*/ function() {
                                 ];
                             case 1:
                                 user = _state.sent();
-                                _tmp = user;
-                                if (!_tmp) return [
-                                    3,
-                                    3
-                                ];
+                                if (!user) {
+                                    throw (0, _error.createErrorWithMessage)(_httpstatuscodes.StatusCodes.NOT_FOUND, "ID not found");
+                                }
                                 return [
                                     4,
-                                    addRoleData(user)
+                                    _this.getUserDetails(user)
                                 ];
                             case 2:
-                                _tmp = _state.sent();
-                                _state.label = 3;
-                            case 3:
-                                user = _tmp;
+                                details = _state.sent();
                                 return [
                                     2,
-                                    user
+                                    details ? _object_spread_props(_object_spread({}, user), {
+                                        details: details
+                                    }) : user
                                 ];
                         }
                     });
@@ -332,7 +404,7 @@ var UserService = /*#__PURE__*/ function() {
             key: "getAll",
             value: function getAll() {
                 return _async_to_generator(function() {
-                    var users, i;
+                    var users;
                     return _ts_generator(this, function(_state) {
                         switch(_state.label){
                             case 0:
@@ -342,27 +414,6 @@ var UserService = /*#__PURE__*/ function() {
                                 ];
                             case 1:
                                 users = _state.sent();
-                                i = 0;
-                                _state.label = 2;
-                            case 2:
-                                if (!(i < users.length)) return [
-                                    3,
-                                    5
-                                ];
-                                return [
-                                    4,
-                                    addRoleData(users[i])
-                                ];
-                            case 3:
-                                users[i] = _state.sent();
-                                _state.label = 4;
-                            case 4:
-                                i++;
-                                return [
-                                    3,
-                                    2
-                                ];
-                            case 5:
                                 return [
                                     2,
                                     users

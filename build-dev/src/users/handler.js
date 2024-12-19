@@ -33,7 +33,6 @@ var _validation = require("../validation");
 var _service = require("./service");
 var _httpstatuscodes = require("http-status-codes");
 var _types = require("./types");
-var _types1 = require("../types");
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
     try {
         var info = gen[key](arg);
@@ -287,7 +286,7 @@ var getUsersHandler = /*#__PURE__*/ function() {
     };
 }();
 var getUserHandler = (0, _validation.withValidation)({
-    paramsSchema: _types1.idParamsSchema
+    paramsSchema: _validation.idParamsSchema
 }, /*#__PURE__*/ function() {
     var _ref = _async_to_generator(function(req, res, next) {
         var id, user, error;
@@ -340,7 +339,7 @@ var updateUserBodySchema = _zod.z.object({
     ]).optional()
 });
 var updateUserHandler = (0, _validation.withValidation)({
-    paramsSchema: _types1.idParamsSchema,
+    paramsSchema: _validation.idParamsSchema,
     bodySchema: updateUserBodySchema
 }, /*#__PURE__*/ function() {
     var _ref = _async_to_generator(function(req, res, next) {
@@ -388,7 +387,7 @@ var updateUserHandler = (0, _validation.withValidation)({
     };
 }());
 var activateUserHandler = (0, _validation.withValidation)({
-    paramsSchema: _types1.idParamsSchema
+    paramsSchema: _validation.idParamsSchema
 }, /*#__PURE__*/ function() {
     var _ref = _async_to_generator(function(req, res, next) {
         var id, error;
@@ -446,7 +445,7 @@ var activateUserHandler = (0, _validation.withValidation)({
     };
 }());
 var deactivateUserHandler = (0, _validation.withValidation)({
-    paramsSchema: _types1.idParamsSchema
+    paramsSchema: _validation.idParamsSchema
 }, /*#__PURE__*/ function() {
     var _ref = _async_to_generator(function(req, res, next) {
         var id, error;

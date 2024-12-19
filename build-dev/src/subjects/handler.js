@@ -27,7 +27,6 @@ var _zod = /*#__PURE__*/ _interop_require_default(require("zod"));
 var _types = require("./types");
 var _service = require("./service");
 var _httpstatuscodes = require("http-status-codes");
-var _types1 = require("../types");
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
     try {
         var info = gen[key](arg);
@@ -215,7 +214,7 @@ var createSubjectHandler = (0, _validation.withValidation)({
 }());
 var updateSubjectBodySchema = subjectSchema;
 var updateSubjectHandler = (0, _validation.withValidation)({
-    paramsSchema: _types1.idParamsSchema,
+    paramsSchema: _validation.idParamsSchema,
     bodySchema: updateSubjectBodySchema
 }, /*#__PURE__*/ function() {
     var _ref = _async_to_generator(function(req, res, next) {
@@ -262,51 +261,57 @@ var updateSubjectHandler = (0, _validation.withValidation)({
         return _ref.apply(this, arguments);
     };
 }());
-var getSubjectsHandler = /*#__PURE__*/ function() {
+var getSubjectsHandler = (0, _validation.withValidation)({
+    querySchema: _validation.listQuerySchema
+}, /*#__PURE__*/ function() {
     var _ref = _async_to_generator(function(req, res, next) {
-        var subjects, error;
+        var query, _ref, data, total, error;
         return _ts_generator(this, function(_state) {
             switch(_state.label){
                 case 0:
+                    query = req.query;
+                    _state.label = 1;
+                case 1:
                     _state.trys.push([
-                        0,
-                        2,
+                        1,
+                        3,
                         ,
-                        3
+                        4
                     ]);
                     return [
                         4,
-                        _service.subjectService.getAll()
+                        _service.subjectService.getAll(query)
                     ];
-                case 1:
-                    subjects = _state.sent();
+                case 2:
+                    _ref = _state.sent(), data = _ref.data, total = _ref.total;
                     res.status(_httpstatuscodes.StatusCodes.OK).json({
-                        data: subjects
+                        data: data,
+                        total: total
                     });
                     return [
                         3,
-                        3
+                        4
                     ];
-                case 2:
+                case 3:
                     error = _state.sent();
                     next(error);
                     return [
                         3,
-                        3
+                        4
                     ];
-                case 3:
+                case 4:
                     return [
                         2
                     ];
             }
         });
     });
-    return function getSubjectsHandler(req, res, next) {
+    return function(req, res, next) {
         return _ref.apply(this, arguments);
     };
-}();
+}());
 var getSubjectHandler = (0, _validation.withValidation)({
-    paramsSchema: _types1.idParamsSchema
+    paramsSchema: _validation.idParamsSchema
 }, /*#__PURE__*/ function() {
     var _ref = _async_to_generator(function(req, res, next) {
         var id, subject, error;

@@ -2,9 +2,20 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-Object.defineProperty(exports, "withValidation", {
-    enumerable: true,
-    get: function() {
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: all[name]
+    });
+}
+_export(exports, {
+    idParamsSchema: function() {
+        return idParamsSchema;
+    },
+    listQuerySchema: function() {
+        return listQuerySchema;
+    },
+    withValidation: function() {
         return withValidation;
     }
 });
@@ -53,3 +64,20 @@ var withValidation = function(schemas, handler) {
         }
     };
 };
+var idParamsSchema = _zod.z.object({
+    id: _zod.z.string()
+});
+var listQuerySchema = _zod.z.object({
+    page: _zod.z.coerce.number().int().min(1).optional().default(1),
+    size: _zod.z.coerce.number().int().min(1).optional().default(10),
+    mode: _zod.z.enum([
+        "all",
+        "pagination"
+    ]).optional().default("pagination"),
+    search: _zod.z.string().optional(),
+    status: _zod.z.enum([
+        "active",
+        "inactive",
+        "all"
+    ]).optional().default("all")
+});
