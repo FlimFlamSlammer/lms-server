@@ -3,9 +3,6 @@ import { z } from "zod";
 import { authService } from "./service";
 import { NextFunction, Request, Response } from "express";
 import { withValidation } from "~/validation";
-import { UserRoles } from "~/users/types";
-import { Student, Teacher } from "@prisma/client";
-import { userService } from "~/users/service";
 
 const loginBodySchema = z.object({
 	email: z.string().email(),

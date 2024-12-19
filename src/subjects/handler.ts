@@ -5,7 +5,6 @@ import { subjectService } from "./service";
 import { StatusCodes } from "http-status-codes";
 import { idParamsSchema } from "~/types";
 import { Request, NextFunction, Response } from "express";
-import { Stats } from "fs";
 
 const subjectSchema = z.object({
 	name: z.string(),

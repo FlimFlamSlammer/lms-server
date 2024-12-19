@@ -1,6 +1,4 @@
-import { createFieldError } from "src/error";
 import { prismaInstance } from "~/prisma-client";
-import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
 import { CreateSubjectDTO, UpdateSubjectDTO } from "./types";
 const prisma = prismaInstance;

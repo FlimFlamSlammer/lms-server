@@ -3,7 +3,6 @@ import { withValidation } from "~/validation";
 import { userService } from "./service";
 import { Request, NextFunction, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { profile } from "console";
 import { validUserRoles, validStatuses } from "./types";
 import { idParamsSchema } from "~/types";
 
