@@ -1,10 +1,9 @@
-import { withValidation } from "~/validation";
+import { listQuerySchema, withValidation } from "~/validation";
 import z from "zod";
 import { validStatuses } from "./types";
 import { subjectService } from "./service";
 import { StatusCodes } from "http-status-codes";
-import { idParamsSchema } from "~/types";
-import { Request, NextFunction, Response } from "express";
+import { idParamsSchema } from "~/validation";
 
 const subjectSchema = z.object({
 	name: z.string(),
@@ -55,20 +54,24 @@ export const updateSubjectHandler = withValidation(
 	}
 );
 
-export const getSubjectsHandler = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
-	try {
-		const subjects = await subjectService.getAll();
-		res.status(StatusCodes.OK).json({
-			data: subjects,
-		});
-	} catch (error) {
-		next(error);
+export const getSubjectsHandler = withValidation(
+	{
+		querySchema: listQuerySchema,
+	},
+	async (req, res, next) => {
+		const query = req.query as unknown as z.infer<typeof listQuerySchema>;
+
+		try {
+			const { data, total } = await subjectService.getAll(query);
+			res.status(StatusCodes.OK).json({
+				data,
+				total,
+			});
+		} catch (error) {
+			next(error);
+		}
 	}
-};
+);
 
 export const getSubjectHandler = withValidation(
 	{
