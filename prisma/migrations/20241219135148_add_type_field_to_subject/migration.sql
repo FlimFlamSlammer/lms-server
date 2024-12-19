@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE `subject` ADD COLUMN `type` VARCHAR(191) NULL;
+ALTER TABLE `Subject` ADD COLUMN `type` VARCHAR(191) NULL;
