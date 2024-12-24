@@ -9,43 +9,20 @@ import {
 } from "./handler";
 import { SetupRouter } from "~/router";
 import { authMiddleware } from "~/auth/middleware";
-import { UserRoles } from "./types";
 
 export const setupUsersRouter: SetupRouter = (router) => {
 	const usersRouter = express.Router();
 
-	usersRouter.post(
-		"/",
-		authMiddleware([UserRoles.ADMIN, UserRoles.SUPERADMIN]),
-		createUserHandler
-	);
-	usersRouter.put(
-		"/:id",
-		authMiddleware([UserRoles.ADMIN, UserRoles.SUPERADMIN]),
-		updateUserHandler
-	);
+	usersRouter.use(authMiddleware(["admin", "superadmin"]));
 
-	usersRouter.patch(
-		"/:id/activate",
-		authMiddleware([UserRoles.ADMIN, UserRoles.SUPERADMIN]),
-		activateUserHandler
-	);
-	usersRouter.patch(
-		"/:id/deactivate",
-		authMiddleware([UserRoles.ADMIN, UserRoles.SUPERADMIN]),
-		deactivateUserHandler
-	);
+	usersRouter.post("/", createUserHandler);
+	usersRouter.put("/:id", updateUserHandler);
 
-	usersRouter.get(
-		"/:id",
-		authMiddleware([UserRoles.ADMIN, UserRoles.SUPERADMIN]),
-		getUserHandler
-	);
-	usersRouter.get(
-		"/",
-		authMiddleware([UserRoles.ADMIN, UserRoles.SUPERADMIN]),
-		getUsersHandler
-	);
+	usersRouter.patch("/:id/activate", activateUserHandler);
+	usersRouter.patch("/:id/deactivate", deactivateUserHandler);
+
+	usersRouter.get("/:id", getUserHandler);
+	usersRouter.get("/", getUsersHandler);
 
 	router.use("/users", usersRouter);
 };

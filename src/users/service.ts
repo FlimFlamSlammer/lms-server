@@ -3,201 +3,200 @@ import { prismaInstance } from "~/prisma-client";
 import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
 import {
-  CreateStudentDTO,
-  CreateTeacherDTO,
-  CreateUserDTO,
-  Student,
-  Teacher,
-  UpdateStudentDTO,
-  UpdateTeacherDTO,
-  UpdateUserDTO,
-  User,
-  UserRoles,
+	CreateStudentDTO,
+	CreateTeacherDTO,
+	CreateUserDTO,
+	Student,
+	Teacher,
+	UpdateStudentDTO,
+	UpdateTeacherDTO,
+	UpdateUserDTO,
+	User,
+	UserRoles,
 } from "./types";
 import { StatusCodes } from "http-status-codes";
+import { ListParams } from "~/types";
 
 const prisma = prismaInstance;
 
-const addRoleData = async (user: User) => {
-  const userCopy = user;
-  if (user.role == UserRoles.STUDENT) {
-    userCopy.roleData = (await prisma.student.findFirst({
-      where: {
-        id: user.id,
-      },
-    })) as Student;
-  }
-  if (user.role == UserRoles.TEACHER) {
-    userCopy.roleData = (await prisma.teacher.findFirst({
-      where: {
-        id: user.id,
-      },
-    })) as Teacher;
-  }
-  return userCopy;
-};
-
 class UserService {
-  constructor() {}
+	constructor() {}
 
-  private async getUserDetails(user: User) {
-    if (user.role == UserRoles.STUDENT) {
-      return (await prisma.student.findFirst({
-        where: {
-          id: user.id,
-        },
-      })) as Student;
-    }
-    if (user.role == UserRoles.TEACHER) {
-      return (await prisma.teacher.findFirst({
-        where: {
-          id: user.id,
-        },
-      })) as Teacher;
-    }
-  }
+	private async getUserDetails(user: User) {
+		if (user.role == UserRoles.STUDENT) {
+			return (await prisma.student.findFirst({
+				where: {
+					id: user.id,
+				},
+			})) as Student;
+		}
+		if (user.role == UserRoles.TEACHER) {
+			return (await prisma.teacher.findFirst({
+				where: {
+					id: user.id,
+				},
+			})) as Teacher;
+		}
+	}
 
-  async getByEmail(email: string) {
-    let user = (await prisma.user.findFirst({
-      where: {
-        email,
-      },
-    })) as User;
+	async getByEmail(email: string) {
+		let user = (await prisma.user.findFirst({
+			where: {
+				email,
+			},
+		})) as User;
 
-    if (!user) {
-      throw createErrorWithMessage(StatusCodes.NOT_FOUND, "Email not found");
-    }
+		if (!user) {
+			throw createErrorWithMessage(StatusCodes.NOT_FOUND, "Email not found");
+		}
 
-    const details = await this.getUserDetails(user);
+		const details = await this.getUserDetails(user);
 
-    return details
-      ? {
-          ...user,
-          details,
-        }
-      : user;
-  }
+		return details
+			? {
+					...user,
+					details,
+			  }
+			: user;
+	}
 
-  async getById(id: string) {
-    let user = (await prisma.user.findFirst({
-      where: {
-        id,
-      },
-    })) as User;
+	async getById(id: string) {
+		let user = (await prisma.user.findFirst({
+			where: {
+				id,
+			},
+		})) as User;
 
-    if (!user) {
-      throw createErrorWithMessage(StatusCodes.NOT_FOUND, "ID not found");
-    }
+		if (!user) {
+			throw createErrorWithMessage(StatusCodes.NOT_FOUND, "ID not found");
+		}
 
-    const details = await this.getUserDetails(user);
+		const details = await this.getUserDetails(user);
 
-    return details
-      ? {
-          ...user,
-          details,
-        }
-      : user;
-  }
+		return details
+			? {
+					...user,
+					details,
+			  }
+			: user;
+	}
 
-  async getAll() {
-    const users = (await prisma.user.findMany()) as User[];
+	async getAll({ page, search, size, mode, status }: ListParams) {
+		const where = {
+			status: status !== "all" ? status : undefined,
+			name: search
+				? {
+						contains: search,
+				  }
+				: undefined,
+		};
 
-    return users;
-  }
+		const users = (await prisma.user.findMany({
+			...(mode === "pagination"
+				? {
+						take: size,
+						skip: (page - 1) * size,
+				  }
+				: {}),
+			where,
+		})) as User[];
 
-  async create(
-    userData: CreateUserDTO,
-    roleData: CreateStudentDTO | CreateTeacherDTO | null = null
-  ) {
-    if (await this.getByEmail(userData.email)) {
-      throw createFieldError({
-        email: "Email is already registered!",
-      });
-    }
+		return users;
+	}
 
-    const id = nanoid();
+	async create(
+		userData: CreateUserDTO,
+		roleData: CreateStudentDTO | CreateTeacherDTO | null = null
+	) {
+		if (await this.getByEmail(userData.email)) {
+			throw createFieldError({
+				email: "Email is already registered!",
+			});
+		}
 
-    await prisma.$transaction(async (tx) => {
-      await tx.user.create({
-        data: {
-          id,
-          status: "active",
-          ...userData,
-        },
-      });
+		const id = nanoid();
 
-      if (userData.role == UserRoles.STUDENT) {
-        if (!(roleData && "nis" in roleData)) {
-          throw createFieldError({
-            roleData: "Invalid role data!",
-          });
-        }
+		await prisma.$transaction(async (tx) => {
+			await tx.user.create({
+				data: {
+					id,
+					status: "active",
+					...userData,
+				},
+			});
 
-        await tx.student.create({
-          data: {
-            id,
-            ...roleData,
-          },
-        });
-      } else if (userData.role == UserRoles.TEACHER) {
-        if (!(roleData && "nig" in roleData)) {
-          throw createFieldError({
-            roleData: "Invalid role data!",
-          });
-        }
+			if (userData.role == UserRoles.STUDENT) {
+				if (!(roleData && "nis" in roleData)) {
+					throw createFieldError({
+						roleData: "Invalid role data!",
+					});
+				}
 
-        await tx.teacher.create({
-          data: {
-            id,
-            ...roleData,
-          },
-        });
-      }
-    });
-  }
+				await tx.student.create({
+					data: {
+						id,
+						...roleData,
+					},
+				});
+			} else if (userData.role == UserRoles.TEACHER) {
+				if (!(roleData && "nig" in roleData)) {
+					throw createFieldError({
+						roleData: "Invalid role data!",
+					});
+				}
 
-  async update(
-    id: string,
-    userData: UpdateUserDTO,
-    roleData: UpdateStudentDTO | UpdateTeacherDTO | null = null
-  ) {
-    if (userData.password) {
-      userData.password = bcrypt.hashSync(userData.password);
-    }
+				await tx.teacher.create({
+					data: {
+						id,
+						...roleData,
+					},
+				});
+			}
+		});
+	}
 
-    await prisma.$transaction(async (tx) => {
-      await tx.user.update({
-        where: {
-          id,
-        },
-        data: userData,
-      });
+	async update(
+		id: string,
+		userData: UpdateUserDTO,
+		roleData: UpdateStudentDTO | UpdateTeacherDTO | null = null
+	) {
+		if (userData.password) {
+			userData.password = bcrypt.hashSync(userData.password);
+		}
 
-      if (!roleData) return;
+		await prisma.$transaction(async (tx) => {
+			await tx.user.update({
+				where: {
+					id,
+				},
+				data: userData,
+			});
 
-      const user = await this.getById(id);
+			if (!roleData) return;
 
-      if (user.role == UserRoles.TEACHER) {
-        await tx.teacher.update({
-          where: {
-            id,
-          },
-          data: {
-            ...roleData,
-          },
-        });
-      } else if (user.role == UserRoles.STUDENT) {
-        await tx.student.update({
-          where: {
-            id,
-          },
-          data: {
-            ...roleData,
-          },
-        });
-      }
-    });
-  }
+			const user = await this.getById(id);
+
+			if (user.role == UserRoles.TEACHER) {
+				await tx.teacher.update({
+					where: {
+						id,
+					},
+					data: {
+						...roleData,
+					},
+				});
+			} else if (user.role == UserRoles.STUDENT) {
+				await tx.student.update({
+					where: {
+						id,
+					},
+					data: {
+						...roleData,
+					},
+				});
+			}
+		});
+	}
 }
 
 export const userService = new UserService();

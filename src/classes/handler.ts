@@ -1,30 +1,30 @@
 import { listQuerySchema, withValidation } from "~/validation";
 import z from "zod";
 import { validStatuses } from "~/types";
-import { subjectService } from "./service";
+import { classService } from "./service";
 import { StatusCodes } from "http-status-codes";
 import { idParamsSchema } from "~/validation";
+import { validClassTypes } from "./types";
 
-const subjectSchema = z.object({
+const classSchema = z.object({
 	name: z.string(),
-	grade: z.number(),
-	startYear: z.number(),
-	endYear: z.number(),
+	type: z.enum(validClassTypes),
 	status: z.enum(validStatuses),
 });
-const createSubjectBodySchema = subjectSchema.omit({ status: true });
 
-export const createSubjectHandler = withValidation(
+const createClassBodySchema = classSchema.omit({ status: true });
+
+export const createClassHandler = withValidation(
 	{
-		bodySchema: createSubjectBodySchema,
+		bodySchema: createClassBodySchema,
 	},
 	async (req, res, next) => {
 		try {
-			const data = req.body as z.infer<typeof createSubjectBodySchema>;
-			await subjectService.create(data);
+			const data = req.body as z.infer<typeof createClassBodySchema>;
+			await classService.create(data);
 
 			res.status(StatusCodes.OK).json({
-				message: "Subject created successfully.",
+				message: "Class created successfully.",
 			});
 		} catch (error) {
 			next(error);
@@ -32,21 +32,21 @@ export const createSubjectHandler = withValidation(
 	}
 );
 
-const updateSubjectBodySchema = subjectSchema;
+const updateClassBodySchema = classSchema;
 
-export const updateSubjectHandler = withValidation(
+export const updateClassHandler = withValidation(
 	{
 		paramsSchema: idParamsSchema,
-		bodySchema: updateSubjectBodySchema,
+		bodySchema: updateClassBodySchema,
 	},
 	async (req, res, next) => {
 		try {
-			const data = req.body as z.infer<typeof updateSubjectBodySchema>;
+			const data = req.body as z.infer<typeof updateClassBodySchema>;
 			const id = req.params.id;
-			await subjectService.update(id, data);
+			await classService.update(id, data);
 
 			res.status(StatusCodes.OK).json({
-				message: "Subject updated successfully.",
+				message: "Class updated successfully.",
 			});
 		} catch (error) {
 			next(error);
@@ -54,7 +54,7 @@ export const updateSubjectHandler = withValidation(
 	}
 );
 
-export const getSubjectsHandler = withValidation(
+export const getClassesHandler = withValidation(
 	{
 		querySchema: listQuerySchema,
 	},
@@ -62,7 +62,7 @@ export const getSubjectsHandler = withValidation(
 		try {
 			const query = req.query as unknown as z.infer<typeof listQuerySchema>;
 
-			const { data, total } = await subjectService.getAll(query);
+			const { data, total } = await classService.getAll(query);
 			res.status(StatusCodes.OK).json({
 				data,
 				total,
@@ -73,17 +73,17 @@ export const getSubjectsHandler = withValidation(
 	}
 );
 
-export const getSubjectHandler = withValidation(
+export const getClassHandler = withValidation(
 	{
 		paramsSchema: idParamsSchema,
 	},
 	async (req, res, next) => {
 		try {
 			const id = req.params.id;
-			const subject = await subjectService.getById(id);
+			const $class = await classService.getById(id);
 
 			res.status(StatusCodes.OK).json({
-				data: subject,
+				data: $class,
 			});
 		} catch (error) {
 			next(error);
@@ -91,7 +91,7 @@ export const getSubjectHandler = withValidation(
 	}
 );
 
-export const activateSubjectHandler = withValidation(
+export const activateClassHandler = withValidation(
 	{
 		paramsSchema: idParamsSchema,
 	},
@@ -99,16 +99,16 @@ export const activateSubjectHandler = withValidation(
 		try {
 			const id = req.params.id;
 
-			if ((await subjectService.getById(id)).status == "active") {
+			if ((await classService.getById(id)).status == "active") {
 				res.status(StatusCodes.OK).json({
-					message: "Subject already activated!",
+					message: "Class already activated!",
 				});
 			}
 
-			await subjectService.update(id, { status: "active" });
+			await classService.update(id, { status: "active" });
 
 			res.status(StatusCodes.OK).json({
-				message: "Subject activated successfully!",
+				message: "Class activated successfully!",
 			});
 		} catch (error) {
 			throw error;
@@ -116,7 +116,7 @@ export const activateSubjectHandler = withValidation(
 	}
 );
 
-export const deactivateSubjectHandler = withValidation(
+export const deactivateClassHandler = withValidation(
 	{
 		paramsSchema: idParamsSchema,
 	},
@@ -124,16 +124,16 @@ export const deactivateSubjectHandler = withValidation(
 		try {
 			const id = req.params.id;
 
-			if ((await subjectService.getById(id)).status == "inactive") {
+			if ((await classService.getById(id)).status == "inactive") {
 				res.status(StatusCodes.OK).json({
-					message: "Subject already inactive!",
+					message: "Class already inactive!",
 				});
 			}
 
-			await subjectService.update(id, { status: "inactive" });
+			await classService.update(id, { status: "inactive" });
 
 			res.status(StatusCodes.OK).json({
-				message: "Subject deactivated successfully!",
+				message: "Class deactivated successfully!",
 			});
 		} catch (error) {
 			throw error;

@@ -1,21 +1,14 @@
-export const validStatuses = ["active", "inactive"] as const;
+import { Status } from "~/types";
 
 export type Subject = {
-  id: string;
-  name: string;
-  grade: number;
-  startYear: number;
-  endYear: number;
-  status: string;
+	id: string;
+	name: string;
+	grade: number;
+	startYear: number;
+	endYear: number;
+	status: Status;
 };
 
 export type CreateSubjectDTO = Omit<Subject, "id" | "status">;
 
-export type UpdateSubjectDTO = Omit<Subject, "id">;
-
-export type ListSubjectParams = {
-  page: number;
-  size: number;
-  search: string;
-  status: "active" | "inactive" | "all";
-};
+export type UpdateSubjectDTO = Partial<Omit<Subject, "id">>;

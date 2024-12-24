@@ -6,15 +6,6 @@ export const validUserRoles = [
 ] as const;
 export type UserRole = (typeof validUserRoles)[number];
 
-export const validStatuses = ["active", "inactive"] as const;
-
-export const UserRoles = {
-	STUDENT: validUserRoles[0],
-	TEACHER: validUserRoles[1],
-	ADMIN: validUserRoles[2],
-	SUPERADMIN: validUserRoles[3],
-};
-
 export type User = {
 	name: string;
 	id: string;

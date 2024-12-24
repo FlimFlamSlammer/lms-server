@@ -1,38 +1,28 @@
 import express from "express";
 import {
-  createSubjectHandler,
-  getSubjectHandler,
-  getSubjectsHandler,
-  updateSubjectHandler,
+	activateSubjectHandler,
+	createSubjectHandler,
+	deactivateSubjectHandler,
+	getSubjectHandler,
+	getSubjectsHandler,
+	updateSubjectHandler,
 } from "./handler";
 import { SetupRouter } from "~/router";
 import { authMiddleware } from "~/auth/middleware";
-import { UserRoles } from "~/users/types";
 
 export const setupSubjectsRouter: SetupRouter = (router) => {
-  const subjectsRouter = express.Router();
+	const subjectsRouter = express.Router();
 
-  subjectsRouter.post(
-    "/",
-    authMiddleware([UserRoles.ADMIN, UserRoles.SUPERADMIN]),
-    createSubjectHandler
-  );
-  subjectsRouter.put(
-    "/:id",
-    authMiddleware([UserRoles.ADMIN, UserRoles.SUPERADMIN]),
-    updateSubjectHandler
-  );
+	subjectsRouter.use(authMiddleware(["admin", "superadmin"]));
 
-  subjectsRouter.get(
-    "/:id",
-    authMiddleware([UserRoles.ADMIN, UserRoles.SUPERADMIN]),
-    getSubjectHandler
-  );
-  subjectsRouter.get(
-    "/",
-    authMiddleware([UserRoles.ADMIN, UserRoles.SUPERADMIN]),
-    getSubjectsHandler
-  );
+	subjectsRouter.post("/", createSubjectHandler);
+	subjectsRouter.put("/:id", updateSubjectHandler);
 
-  router.use("/subjects", subjectsRouter);
+	subjectsRouter.get("/:id", getSubjectHandler);
+	subjectsRouter.get("/", getSubjectsHandler);
+
+	subjectsRouter.patch("/:id/activate", activateSubjectHandler);
+	subjectsRouter.patch("/:id/deactivate", deactivateSubjectHandler);
+
+	router.use("/subjects", subjectsRouter);
 };

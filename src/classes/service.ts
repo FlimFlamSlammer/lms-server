@@ -1,14 +1,14 @@
 import { prismaInstance } from "~/prisma-client";
 import { nanoid } from "nanoid";
-import { CreateSubjectDTO, Subject, UpdateSubjectDTO } from "./types";
+import { CreateClassDTO, Class, UpdateClassDTO } from "./types";
 import { ListParams } from "~/types";
 const prisma = prismaInstance;
 
-class SubjectService {
+class ClassService {
 	constructor() {}
 
-	create(data: CreateSubjectDTO) {
-		return prisma.subject.create({
+	create(data: CreateClassDTO) {
+		return prisma.class.create({
 			data: {
 				id: nanoid(),
 				status: "active",
@@ -17,8 +17,8 @@ class SubjectService {
 		});
 	}
 
-	update(id: string, data: UpdateSubjectDTO) {
-		return prisma.subject.update({
+	update(id: string, data: UpdateClassDTO) {
+		return prisma.class.update({
 			where: {
 				id,
 			},
@@ -28,20 +28,17 @@ class SubjectService {
 		});
 	}
 
-	// take: how many records of data that will be taken.
-	// skip: how many data to skip.
-
 	async getAll({ page, search, size, mode, status }: ListParams) {
 		const where = {
 			status: status !== "all" ? status : undefined,
 			name: search
 				? {
-						contains: search, // name LIKE `%${search}%`
+						contains: search,
 				  }
 				: undefined,
 		};
 
-		const subjects = (await prisma.subject.findMany({
+		const classes = (await prisma.class.findMany({
 			...(mode === "pagination"
 				? {
 						take: size,
@@ -49,20 +46,20 @@ class SubjectService {
 				  }
 				: {}),
 			where,
-		})) as Subject[];
+		})) as Class[];
 
-		const total = await prisma.subject.count({ where });
+		const total = await prisma.class.count({ where });
 
-		return { data: subjects, total };
+		return { data: classes, total };
 	}
 
 	async getById(id: string) {
-		return (await prisma.subject.findFirst({
+		return (await prisma.class.findFirst({
 			where: {
 				id,
 			},
-		})) as Subject;
+		})) as Class;
 	}
 }
 
-export const subjectService = new SubjectService();
+export const classService = new ClassService();
