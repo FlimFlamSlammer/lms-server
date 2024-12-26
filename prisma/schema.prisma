@@ -65,7 +65,6 @@ model Subject {
 model Class {
   id       String    @id @default(uuid())
   name     String
-  type     String
   status   String
   subjects Subject[]
   students Student[]

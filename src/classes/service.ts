@@ -2,6 +2,8 @@ import { prismaInstance } from "~/prisma-client";
 import { nanoid } from "nanoid";
 import { CreateClassDTO, Class, UpdateClassDTO } from "./types";
 import { ListParams } from "~/types";
+import { createErrorWithMessage } from "~/error";
+import { StatusCodes } from "http-status-codes";
 const prisma = prismaInstance;
 
 class ClassService {
@@ -17,8 +19,13 @@ class ClassService {
 		});
 	}
 
-	update(id: string, data: UpdateClassDTO) {
-		return prisma.class.update({
+	async update(id: string, data: UpdateClassDTO) {
+		const $class = await this.getById(id);
+		if (!$class) {
+			throw createErrorWithMessage(StatusCodes.NOT_FOUND, "Class not found!");
+		}
+
+		return await prisma.class.update({
 			where: {
 				id,
 			},
@@ -58,7 +65,7 @@ class ClassService {
 			where: {
 				id,
 			},
-		})) as Class;
+		})) as Class | null;
 	}
 }
 

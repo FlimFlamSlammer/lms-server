@@ -4,11 +4,9 @@ import { validStatuses } from "~/types";
 import { classService } from "./service";
 import { StatusCodes } from "http-status-codes";
 import { idParamsSchema } from "~/validation";
-import { validClassTypes } from "./types";
 
 const classSchema = z.object({
 	name: z.string(),
-	type: z.enum(validClassTypes),
 	status: z.enum(validStatuses),
 });
 
@@ -99,19 +97,13 @@ export const activateClassHandler = withValidation(
 		try {
 			const id = req.params.id;
 
-			if ((await classService.getById(id)).status == "active") {
-				res.status(StatusCodes.OK).json({
-					message: "Class already activated!",
-				});
-			}
-
 			await classService.update(id, { status: "active" });
 
 			res.status(StatusCodes.OK).json({
 				message: "Class activated successfully!",
 			});
 		} catch (error) {
-			throw error;
+			next(error);
 		}
 	}
 );
@@ -124,19 +116,13 @@ export const deactivateClassHandler = withValidation(
 		try {
 			const id = req.params.id;
 
-			if ((await classService.getById(id)).status == "inactive") {
-				res.status(StatusCodes.OK).json({
-					message: "Class already inactive!",
-				});
-			}
-
 			await classService.update(id, { status: "inactive" });
 
 			res.status(StatusCodes.OK).json({
 				message: "Class deactivated successfully!",
 			});
 		} catch (error) {
-			throw error;
+			next(error);
 		}
 	}
 );

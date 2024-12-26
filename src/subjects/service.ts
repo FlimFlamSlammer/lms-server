@@ -2,6 +2,8 @@ import { prismaInstance } from "~/prisma-client";
 import { nanoid } from "nanoid";
 import { CreateSubjectDTO, Subject, UpdateSubjectDTO } from "./types";
 import { ListParams } from "~/types";
+import { createErrorWithMessage } from "~/error";
+import { StatusCodes } from "http-status-codes";
 const prisma = prismaInstance;
 
 class SubjectService {
@@ -17,8 +19,13 @@ class SubjectService {
 		});
 	}
 
-	update(id: string, data: UpdateSubjectDTO) {
-		return prisma.subject.update({
+	async update(id: string, data: UpdateSubjectDTO) {
+		const subject = await this.getById(id);
+		if (!subject) {
+			throw createErrorWithMessage(StatusCodes.NOT_FOUND, "Subject not found!");
+		}
+
+		return await prisma.subject.update({
 			where: {
 				id,
 			},
@@ -61,7 +68,7 @@ class SubjectService {
 			where: {
 				id,
 			},
-		})) as Subject;
+		})) as Subject | null;
 	}
 }
 

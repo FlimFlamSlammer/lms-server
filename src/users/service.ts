@@ -36,6 +36,7 @@ class UserService {
 				},
 			})) as Teacher;
 		}
+		return null;
 	}
 
 	async getByEmail(email: string) {
@@ -45,18 +46,18 @@ class UserService {
 			},
 		})) as User;
 
-		if (!user) {
-			throw createErrorWithMessage(StatusCodes.NOT_FOUND, "Email not found");
-		}
-
-		const details = await this.getUserDetails(user);
-
-		return details
-			? {
+		if (user) {
+			const details = await this.getUserDetails(user);
+			if (details) {
+				return {
 					...user,
 					details,
-			  }
-			: user;
+				};
+			} else {
+				return user;
+			}
+		}
+		return null;
 	}
 
 	async getById(id: string) {
@@ -66,18 +67,18 @@ class UserService {
 			},
 		})) as User;
 
-		if (!user) {
-			throw createErrorWithMessage(StatusCodes.NOT_FOUND, "ID not found");
-		}
-
-		const details = await this.getUserDetails(user);
-
-		return details
-			? {
+		if (user) {
+			const details = await this.getUserDetails(user);
+			if (details) {
+				return {
 					...user,
 					details,
-			  }
-			: user;
+				};
+			} else {
+				return user;
+			}
+		}
+		return null;
 	}
 
 	async getAll({ page, search, size, mode, status }: ListParams) {
@@ -159,6 +160,11 @@ class UserService {
 		userData: UpdateUserDTO,
 		roleData: UpdateStudentDTO | UpdateTeacherDTO | null = null
 	) {
+		const user = await this.getById(id);
+		if (!user) {
+			throw createErrorWithMessage(StatusCodes.NOT_FOUND, "User not found!");
+		}
+
 		if (userData.password) {
 			userData.password = bcrypt.hashSync(userData.password);
 		}
@@ -172,8 +178,6 @@ class UserService {
 			});
 
 			if (!roleData) return;
-
-			const user = await this.getById(id);
 
 			if (user.role == "teacher") {
 				await tx.teacher.update({

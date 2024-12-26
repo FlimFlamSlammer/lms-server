@@ -4,12 +4,14 @@ import { validStatuses } from "~/types";
 import { subjectService } from "./service";
 import { StatusCodes } from "http-status-codes";
 import { idParamsSchema } from "~/validation";
+import { validSubjectTypes } from "./types";
 
 const subjectSchema = z.object({
 	name: z.string(),
 	grade: z.number(),
 	startYear: z.number(),
 	endYear: z.number(),
+	type: z.enum(validSubjectTypes),
 	status: z.enum(validStatuses),
 });
 const createSubjectBodySchema = subjectSchema.omit({ status: true });
@@ -99,19 +101,13 @@ export const activateSubjectHandler = withValidation(
 		try {
 			const id = req.params.id;
 
-			if ((await subjectService.getById(id)).status == "active") {
-				res.status(StatusCodes.OK).json({
-					message: "Subject already activated!",
-				});
-			}
-
 			await subjectService.update(id, { status: "active" });
 
 			res.status(StatusCodes.OK).json({
 				message: "Subject activated successfully!",
 			});
 		} catch (error) {
-			throw error;
+			next(error);
 		}
 	}
 );
@@ -124,19 +120,13 @@ export const deactivateSubjectHandler = withValidation(
 		try {
 			const id = req.params.id;
 
-			if ((await subjectService.getById(id)).status == "inactive") {
-				res.status(StatusCodes.OK).json({
-					message: "Subject already inactive!",
-				});
-			}
-
 			await subjectService.update(id, { status: "inactive" });
 
 			res.status(StatusCodes.OK).json({
 				message: "Subject deactivated successfully!",
 			});
 		} catch (error) {
-			throw error;
+			next(error);
 		}
 	}
 );

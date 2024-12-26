@@ -130,12 +130,6 @@ export const activateUserHandler = withValidation(
 		try {
 			const id = req.params.id;
 
-			if ((await userService.getById(id)).status === "active") {
-				res.status(StatusCodes.OK).json({
-					message: "User already activated!",
-				});
-			}
-
 			await userService.update(id, {
 				status: "active",
 			});
@@ -156,12 +150,6 @@ export const deactivateUserHandler = withValidation(
 	async (req, res, next) => {
 		try {
 			const id = req.params.id;
-
-			if ((await userService.getById(id)).status === "inactive") {
-				res.status(StatusCodes.OK).json({
-					message: "User already inactive!",
-				});
-			}
 
 			await userService.update(id, {
 				status: "inactive",
