@@ -4,14 +4,12 @@ import { validStatuses } from "~/types";
 import { subjectService } from "./service";
 import { StatusCodes } from "http-status-codes";
 import { idParamsSchema } from "~/validation";
-import { validSubjectTypes } from "./types";
 
 const subjectSchema = z.object({
 	name: z.string(),
 	grade: z.number(),
 	startYear: z.number(),
 	endYear: z.number(),
-	type: z.enum(validSubjectTypes),
 	status: z.enum(validStatuses),
 });
 const createSubjectBodySchema = subjectSchema.omit({ status: true });

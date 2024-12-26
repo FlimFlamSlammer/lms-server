@@ -58,7 +58,6 @@ model Subject {
   startYear Int
   endYear   Int
   status    String
-  type      String?
   classes   Class[]
 }
 
