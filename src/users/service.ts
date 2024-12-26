@@ -101,7 +101,9 @@ class UserService {
 			where,
 		})) as User[];
 
-		return users;
+		const total = await prisma.user.count({ where });
+
+		return { users, total };
 	}
 
 	async create(
