@@ -12,7 +12,6 @@ import {
 	UpdateTeacherDTO,
 	UpdateUserDTO,
 	User,
-	UserRoles,
 } from "./types";
 import { StatusCodes } from "http-status-codes";
 import { ListParams } from "~/types";
@@ -23,14 +22,14 @@ class UserService {
 	constructor() {}
 
 	private async getUserDetails(user: User) {
-		if (user.role == UserRoles.STUDENT) {
+		if (user.role == "student") {
 			return (await prisma.student.findFirst({
 				where: {
 					id: user.id,
 				},
 			})) as Student;
 		}
-		if (user.role == UserRoles.TEACHER) {
+		if (user.role == "teacher") {
 			return (await prisma.teacher.findFirst({
 				where: {
 					id: user.id,
@@ -125,7 +124,7 @@ class UserService {
 				},
 			});
 
-			if (userData.role == UserRoles.STUDENT) {
+			if (userData.role == "student") {
 				if (!(roleData && "nis" in roleData)) {
 					throw createFieldError({
 						roleData: "Invalid role data!",
@@ -138,7 +137,7 @@ class UserService {
 						...roleData,
 					},
 				});
-			} else if (userData.role == UserRoles.TEACHER) {
+			} else if (userData.role == "teacher") {
 				if (!(roleData && "nig" in roleData)) {
 					throw createFieldError({
 						roleData: "Invalid role data!",
@@ -176,7 +175,7 @@ class UserService {
 
 			const user = await this.getById(id);
 
-			if (user.role == UserRoles.TEACHER) {
+			if (user.role == "teacher") {
 				await tx.teacher.update({
 					where: {
 						id,
@@ -185,7 +184,7 @@ class UserService {
 						...roleData,
 					},
 				});
-			} else if (user.role == UserRoles.STUDENT) {
+			} else if (user.role == "student") {
 				await tx.student.update({
 					where: {
 						id,
