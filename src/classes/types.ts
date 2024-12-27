@@ -1,4 +1,5 @@
 import { Status } from "~/types";
+import { Student } from "~/users/types";
 
 export type Class = {
 	id: string;
@@ -6,6 +7,6 @@ export type Class = {
 	status: Status;
 };
 
-export type CreateClassDTO = Omit<Class, "id" | "status">;
+export type CreateClassDTO = Omit<Class, "id" | "status" | "students">;
 
 export type UpdateClassDTO = Partial<Omit<Class, "id">>;

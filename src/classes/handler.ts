@@ -126,3 +126,54 @@ export const deactivateClassHandler = withValidation(
 		}
 	}
 );
+
+const updateStudentsBodySchema = z.object({
+	studentIds: z.array(z.string()),
+});
+
+export const addStudentsHandler = withValidation(
+	{
+		paramsSchema: idParamsSchema,
+		bodySchema: updateStudentsBodySchema,
+	},
+	async (req, res, next) => {
+		try {
+			const id = req.params.id;
+			const data = req.body as z.infer<typeof updateStudentsBodySchema>;
+
+			const missingStudents = await classService.addStudents(
+				id,
+				data.studentIds
+			);
+
+			res.status(StatusCodes.OK).json({
+				message: "Students added successfully!",
+				missingStudents:
+					missingStudents.totalMissing > 0 ? missingStudents : undefined,
+			});
+		} catch (error) {
+			next(error);
+		}
+	}
+);
+
+export const removeStudentsHandler = withValidation(
+	{
+		paramsSchema: idParamsSchema,
+		bodySchema: updateStudentsBodySchema,
+	},
+	async (req, res, next) => {
+		try {
+			const id = req.params.id;
+			const data = req.body as z.infer<typeof updateStudentsBodySchema>;
+
+			await classService.removeStudents(id, data.studentIds);
+
+			res.status(StatusCodes.OK).json({
+				message: "Students removed successfully!",
+			});
+		} catch (error) {
+			next(error);
+		}
+	}
+);
