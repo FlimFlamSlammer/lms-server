@@ -1,128 +1,140 @@
 import { prismaInstance } from "~/prisma-client";
 import { nanoid } from "nanoid";
-import { CreateClassDTO, Class, UpdateClassDTO } from "./types";
+import {
+  CreateClassDTO,
+  Class,
+  UpdateClassDTO,
+  MutateStudentsDTO,
+} from "./types";
 import { ListParams } from "~/types";
 import { createErrorWithMessage } from "~/error";
 import { StatusCodes } from "http-status-codes";
 const prisma = prismaInstance;
 
 class ClassService {
-	constructor() {}
+  constructor() {}
 
-	private async freeUpdate(id: string, data: object) {
-		const $class = await this.getById(id);
-		if (!$class) {
-			throw createErrorWithMessage(StatusCodes.NOT_FOUND, "Class not found!");
-		}
+  private async validateClass(id: string) {
+    const $class = await this.getById(id);
+    if (!$class) {
+      throw createErrorWithMessage(StatusCodes.NOT_FOUND, "Class not found!");
+    }
+  }
 
-		return await prisma.class.update({
-			where: {
-				id,
-			},
-			data: {
-				...data,
-			},
-		});
-	}
+  create(data: CreateClassDTO) {
+    return prisma.class.create({
+      data: {
+        id: nanoid(),
+        status: "active",
+        ...data,
+      },
+    });
+  }
 
-	create(data: CreateClassDTO) {
-		return prisma.class.create({
-			data: {
-				id: nanoid(),
-				status: "active",
-				...data,
-			},
-		});
-	}
+  async update(id: string, data: UpdateClassDTO) {
+    this.validateClass(id);
 
-	async update(id: string, data: UpdateClassDTO) {
-		return (await this.freeUpdate(id, data)) as Class;
-	}
+    await prisma.class.update({
+      where: {
+        id,
+      },
+      data: data,
+    });
+  }
 
-	async getAll({ page, search, size, mode, status }: ListParams) {
-		const where = {
-			status: status !== "all" ? status : undefined,
-			name: search
-				? {
-						contains: search,
-				  }
-				: undefined,
-		};
+  async getAll({ page, search, size, mode, status }: ListParams) {
+    const where = {
+      status: status !== "all" ? status : undefined,
+      name: search
+        ? {
+            contains: search,
+          }
+        : undefined,
+    };
 
-		const classes = (await prisma.class.findMany({
-			...(mode === "pagination"
-				? {
-						take: size,
-						skip: (page - 1) * size,
-				  }
-				: {}),
-			where,
-		})) as Class[];
+    const classes = (await prisma.class.findMany({
+      ...(mode === "pagination"
+        ? {
+            take: size,
+            skip: (page - 1) * size,
+          }
+        : {}),
+      where,
+    })) as Class[];
 
-		const total = await prisma.class.count({ where });
+    const total = await prisma.class.count({ where });
 
-		return { data: classes, total };
-	}
+    return { data: classes, total };
+  }
 
-	async getById(id: string) {
-		return (await prisma.class.findFirst({
-			where: {
-				id,
-			},
-			include: {
-				students: true,
-			},
-		})) as Class | null;
-	}
+  async getById(id: string) {
+    return (await prisma.class.findFirst({
+      where: {
+        id,
+      },
+      include: {
+        students: true,
+      },
+    })) as Class | null;
+  }
 
-	async addStudents(id: string, studentIds: string[]) {
-		// check for invalid student ids
-		const existingStudents = await prisma.student.findMany({
-			where: {
-				id: { in: studentIds },
-			},
-		});
+  async addStudents(id: string, data: MutateStudentsDTO) {
+    this.validateClass(id);
 
-		const existingStudentIds = await existingStudents.map(
-			(student) => student.id
-		);
+    // check for invalid student ids
+    const existingStudents = await prisma.student.findMany({
+      where: {
+        id: { in: data.studentIds },
+      },
+    });
 
-		studentIds.sort();
-		existingStudentIds.sort();
+    const existingStudentIds = existingStudents.map((student) => student.id);
 
-		const missingIds = new Array<String>();
-		let index = 0;
-		studentIds.forEach((requestedId) => {
-			if (requestedId != existingStudentIds[index]) {
-				missingIds.push(requestedId);
-			} else index++;
-		});
+    data.studentIds.sort();
+    existingStudentIds.sort();
 
-		// add the relations
-		await this.freeUpdate(id, {
-			students: {
-				connect: existingStudentIds.map((studentId) => {
-					return { id: studentId };
-				}),
-			},
-		});
+    const missingIds = new Array<String>();
+    let index = 0;
+    data.studentIds.forEach((requestedId) => {
+      if (requestedId != existingStudentIds[index]) {
+        missingIds.push(requestedId);
+      } else index++;
+    });
 
-		// return missing ids
-		return {
-			totalMissing: missingIds.length,
-			missingStudents: missingIds,
-		};
-	}
+    await prisma.class.update({
+      where: {
+        id,
+      },
+      data: {
+        students: {
+          connect: existingStudentIds.map((sid) => {
+            return { id: sid };
+          }),
+        },
+      },
+    });
 
-	async removeStudents(id: string, studentIds: string[]) {
-		await this.freeUpdate(id, {
-			students: {
-				disconnect: studentIds.map((studentId) => {
-					return { id: studentId };
-				}),
-			},
-		});
-	}
+    // return missing ids
+    return {
+      totalMissing: missingIds.length,
+      missingStudents: missingIds,
+    };
+  }
+
+  async removeStudents(id: string, data: MutateStudentsDTO) {
+    await prisma.class.update({
+      where: {
+        id,
+      },
+      data: {
+        students: {
+          connect: data.studentIds.map((sid) => {
+            return { id: sid };
+          }),
+        },
+      },
+    });
+  }
 }
 
 export const classService = new ClassService();
