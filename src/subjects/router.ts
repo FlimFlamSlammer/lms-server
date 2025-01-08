@@ -1,10 +1,12 @@
 import express from "express";
 import {
 	activateSubjectHandler,
+	addTeachersHandler,
 	createSubjectHandler,
 	deactivateSubjectHandler,
 	getSubjectHandler,
 	getSubjectsHandler,
+	removeTeachersHandler,
 	updateSubjectHandler,
 } from "./handler";
 import { SetupRouter } from "~/router";
@@ -23,6 +25,9 @@ export const setupSubjectsRouter: SetupRouter = (router) => {
 
 	subjectsRouter.patch("/:id/activate", activateSubjectHandler);
 	subjectsRouter.patch("/:id/deactivate", deactivateSubjectHandler);
+
+	subjectsRouter.patch("/:id/add-teachers", addTeachersHandler);
+	subjectsRouter.patch("/:id/remove-teachers", removeTeachersHandler);
 
 	router.use("/subjects", subjectsRouter);
 };

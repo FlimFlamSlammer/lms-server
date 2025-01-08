@@ -26,8 +26,8 @@ export const setupClassesRouter: SetupRouter = (router) => {
 	classesRouter.patch("/:id/activate", activateClassHandler);
 	classesRouter.patch("/:id/deactivate", deactivateClassHandler);
 
-	classesRouter.patch(":id/add-students", addStudentsHandler);
-	classesRouter.patch(":id/removeStudentz", removeStudentsHandler);
+	classesRouter.patch("/:id/add-students", addStudentsHandler);
+	classesRouter.patch("/:id/remove-students", removeStudentsHandler);
 
 	router.use("/classes", classesRouter);
 };

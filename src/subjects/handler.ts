@@ -128,3 +128,54 @@ export const deactivateSubjectHandler = withValidation(
 		}
 	}
 );
+
+const updateTeachersBodySchema = z.object({
+	teacherIds: z.array(z.string()),
+});
+
+export const addTeachersHandler = withValidation(
+	{
+		paramsSchema: idParamsSchema,
+		bodySchema: updateTeachersBodySchema,
+	},
+	async (req, res, next) => {
+		try {
+			const id = req.params.id;
+			const data = req.body as z.infer<typeof updateTeachersBodySchema>;
+
+			const missingTeachers = await subjectService.addTeachers(
+				id,
+				data.teacherIds
+			);
+
+			res.status(StatusCodes.OK).json({
+				message: "Teachers added successfully!",
+				missingTeachers:
+					missingTeachers.totalMissing > 0 ? missingTeachers : undefined,
+			});
+		} catch (error) {
+			next(error);
+		}
+	}
+);
+
+export const removeTeachersHandler = withValidation(
+	{
+		paramsSchema: idParamsSchema,
+		bodySchema: updateTeachersBodySchema,
+	},
+	async (req, res, next) => {
+		try {
+			const id = req.params.id;
+			const data = req.body as z.infer<typeof updateTeachersBodySchema>;
+
+			await subjectService.removeTeachers(id, data.teacherIds);
+
+			res.status(StatusCodes.OK).json({
+				message: "Teachers removed successfully!",
+			});
+		} catch (error) {
+			next(error);
+		}
+	}
+);

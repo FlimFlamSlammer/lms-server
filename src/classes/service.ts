@@ -69,6 +69,9 @@ class ClassService {
 			where: {
 				id,
 			},
+			include: {
+				students: true,
+			},
 		})) as Class | null;
 	}
 
@@ -99,7 +102,7 @@ class ClassService {
 		await this.freeUpdate(id, {
 			students: {
 				connect: existingStudentIds.map((studentId) => {
-					id: studentId;
+					return { id: studentId };
 				}),
 			},
 		});
@@ -115,7 +118,7 @@ class ClassService {
 		await this.freeUpdate(id, {
 			students: {
 				disconnect: studentIds.map((studentId) => {
-					id: studentId;
+					return { id: studentId };
 				}),
 			},
 		});
