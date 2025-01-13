@@ -5,69 +5,67 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["omitApi"]
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+    provider = "mysql"
+    url      = env("DATABASE_URL")
 }
 
 model User {
-  id           String   @id @default(uuid())
-  name         String
-  email        String   @unique
-  phoneNumber  String?
-  status       String
-  password     String
-  role         String
-  profileImage String?
-  teacher      Teacher?
-  student      Student?
+    id           String   @id @default(uuid())
+    name         String
+    email        String   @unique
+    phoneNumber  String?
+    status       String
+    password     String
+    role         String
+    profileImage String?
+    teacher      Teacher?
+    student      Student?
 }
 
 model Teacher {
-  id              String   @id
-  user            User     @relation(fields: [id], references: [id])
-  expertise       String?
-  bachelorDegree  String?
-  masterDegree    String?
-  doctorateDegree String?
-  description     String?
-  nig             String
-  Subject         Subject? @relation(fields: [subjectId], references: [id])
-  subjectId       String?
+    id              String    @id
+    user            User      @relation(fields: [id], references: [id])
+    expertise       String?
+    bachelorDegree  String?
+    masterDegree    String?
+    doctorateDegree String?
+    description     String?
+    nig             String
+    subjects        Subject[]
 }
 
 model Student {
-  id                 String   @id
-  user               User     @relation(fields: [id], references: [id])
-  birthDate          DateTime
-  nis                String
-  description        String?
-  fatherName         String?
-  motherName         String?
-  guardianName       String?
-  contactPhoneNumber String
-  classes            Class[]
+    id                 String   @id
+    user               User     @relation(fields: [id], references: [id])
+    birthDate          DateTime
+    nis                String
+    description        String?
+    fatherName         String?
+    motherName         String?
+    guardianName       String?
+    contactPhoneNumber String
+    classes            Class[]
 }
 
 model Subject {
-  id        String    @id @default(uuid())
-  name      String
-  grade     Int
-  startYear Int
-  endYear   Int
-  status    String
-  teachers  Teacher[]
-  classes   Class[]
+    id        String    @id @default(uuid())
+    name      String
+    grade     Int
+    startYear Int
+    endYear   Int
+    status    String
+    teachers  Teacher[]
+    classes   Class[]
 }
 
 model Class {
-  id       String    @id @default(uuid())
-  name     String
-  status   String
-  subjects Subject[]
-  students Student[]
+    id       String    @id @default(uuid())
+    name     String
+    status   String
+    subjects Subject[]
+    students Student[]
 }
