@@ -129,24 +129,23 @@ export const deactivateSubjectHandler = withValidation(
 	}
 );
 
-const updateTeachersBodySchema = z.object({
+const mutateTeachersBodySchema = z.object({
 	teacherIds: z.array(z.string()),
 });
 
 export const addTeachersHandler = withValidation(
 	{
 		paramsSchema: idParamsSchema,
-		bodySchema: updateTeachersBodySchema,
+		bodySchema: mutateTeachersBodySchema,
 	},
 	async (req, res, next) => {
 		try {
 			const id = req.params.id;
-			const data = req.body as z.infer<typeof updateTeachersBodySchema>;
+			const data = req.body as z.infer<typeof mutateTeachersBodySchema>;
 
-			const missingTeachers = await subjectService.addTeachers(
-				id,
-				data.teacherIds
-			);
+			const missingTeachers = await subjectService.addTeachers(id, {
+				teacherIds: data.teacherIds,
+			});
 
 			res.status(StatusCodes.OK).json({
 				message: "Teachers added successfully!",
@@ -162,17 +161,67 @@ export const addTeachersHandler = withValidation(
 export const removeTeachersHandler = withValidation(
 	{
 		paramsSchema: idParamsSchema,
-		bodySchema: updateTeachersBodySchema,
+		bodySchema: mutateTeachersBodySchema,
 	},
 	async (req, res, next) => {
 		try {
 			const id = req.params.id;
-			const data = req.body as z.infer<typeof updateTeachersBodySchema>;
+			const data = req.body as z.infer<typeof mutateTeachersBodySchema>;
 
-			await subjectService.removeTeachers(id, data.teacherIds);
+			await subjectService.removeTeachers(id, { teacherIds: data.teacherIds });
 
 			res.status(StatusCodes.OK).json({
 				message: "Teachers removed successfully!",
+			});
+		} catch (error) {
+			next(error);
+		}
+	}
+);
+
+const mutateClassesBodySchema = z.object({
+	classIds: z.array(z.string()),
+});
+
+export const addClassesHandler = withValidation(
+	{
+		paramsSchema: idParamsSchema,
+		bodySchema: mutateClassesBodySchema,
+	},
+	async (req, res, next) => {
+		try {
+			const id = req.params.id;
+			const data = req.body as z.infer<typeof mutateClassesBodySchema>;
+
+			const missingClasses = await subjectService.addClasses(id, {
+				classIds: data.classIds,
+			});
+
+			res.status(StatusCodes.OK).json({
+				message: "Classes added successfully!",
+				missingClasses:
+					missingClasses.totalMissing > 0 ? missingClasses : undefined,
+			});
+		} catch (error) {
+			next(error);
+		}
+	}
+);
+
+export const removeClassesHandler = withValidation(
+	{
+		paramsSchema: idParamsSchema,
+		bodySchema: mutateClassesBodySchema,
+	},
+	async (req, res, next) => {
+		try {
+			const id = req.params.id;
+			const data = req.body as z.infer<typeof mutateClassesBodySchema>;
+
+			await subjectService.removeClasses(id, { classIds: data.classIds });
+
+			res.status(StatusCodes.OK).json({
+				message: "Classes removed successfully!",
 			});
 		} catch (error) {
 			next(error);

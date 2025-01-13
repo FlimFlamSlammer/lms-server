@@ -1,6 +1,12 @@
 import { prismaInstance } from "~/prisma-client";
 import { nanoid } from "nanoid";
-import { CreateSubjectDTO, Subject, UpdateSubjectDTO } from "./types";
+import {
+	CreateSubjectDTO,
+	MutateClassesDTO,
+	MutateTeachersDTO,
+	Subject,
+	UpdateSubjectDTO,
+} from "./types";
 import { ListParams } from "~/types";
 import { createErrorWithMessage } from "~/error";
 import { StatusCodes } from "http-status-codes";
@@ -9,20 +15,11 @@ const prisma = prismaInstance;
 class SubjectService {
 	constructor() {}
 
-	private async freeUpdate(id: string, data: object) {
+	private async validateSubject(id: string) {
 		const subject = await this.getById(id);
 		if (!subject) {
 			throw createErrorWithMessage(StatusCodes.NOT_FOUND, "Subject not found!");
 		}
-
-		return await prisma.subject.update({
-			where: {
-				id,
-			},
-			data: {
-				...data,
-			},
-		});
 	}
 
 	create(data: CreateSubjectDTO) {
@@ -36,7 +33,16 @@ class SubjectService {
 	}
 
 	async update(id: string, data: UpdateSubjectDTO) {
-		return (await this.freeUpdate(id, data)) as Subject;
+		this.validateSubject(id);
+
+		return (await prisma.subject.update({
+			where: {
+				id,
+			},
+			data: {
+				...data,
+			},
+		})) as Subject;
 	}
 
 	// take: how many records of data that will be taken.
@@ -74,15 +80,18 @@ class SubjectService {
 			},
 			include: {
 				teachers: true,
+				classes: true,
 			},
 		})) as Subject | null;
 	}
 
-	async addTeachers(id: string, teacherIds: string[]) {
+	async addTeachers(id: string, data: MutateTeachersDTO) {
+		this.validateSubject(id);
+
 		// check for invalid student ids
 		const existingTeachers = await prisma.teacher.findMany({
 			where: {
-				id: { in: teacherIds },
+				id: { in: data.teacherIds },
 			},
 		});
 
@@ -90,39 +99,103 @@ class SubjectService {
 			(teacher) => teacher.id
 		);
 
-		teacherIds.sort();
+		data.teacherIds.sort();
 		existingTeacherIds.sort();
 
 		const missingIds = new Array<String>();
 		let index = 0;
-		teacherIds.forEach((requestedId) => {
+		data.teacherIds.forEach((requestedId) => {
 			if (requestedId != existingTeacherIds[index]) {
 				missingIds.push(requestedId);
 			} else index++;
 		});
 
 		// add the relations
-		await this.freeUpdate(id, {
-			teachers: {
-				connect: existingTeacherIds.map((teacherId) => {
-					return { id: teacherId };
-				}),
+		await prisma.subject.update({
+			where: { id },
+			data: {
+				teachers: {
+					connect: existingTeacherIds.map((teacherId) => {
+						return { id: teacherId };
+					}),
+				},
 			},
 		});
 
 		// return missing ids
 		return {
 			totalMissing: missingIds.length,
-			missingStudents: missingIds,
+			missingTeachers: missingIds,
 		};
 	}
 
-	async removeTeachers(id: string, teacherIds: string[]) {
-		await this.freeUpdate(id, {
-			students: {
-				disconnect: teacherIds.map((teacherId) => {
-					return { id: teacherId };
-				}),
+	async removeTeachers(id: string, data: MutateTeachersDTO) {
+		this.validateSubject(id);
+
+		await prisma.subject.update({
+			where: { id },
+			data: {
+				teachers: {
+					disconnect: data.teacherIds.map((teacherId) => {
+						return { id: teacherId };
+					}),
+				},
+			},
+		});
+	}
+
+	async addClasses(id: string, data: MutateClassesDTO) {
+		this.validateSubject(id);
+
+		const existingClasses = await prisma.class.findMany({
+			where: {
+				id: { in: data.classIds },
+			},
+		});
+
+		const existingClassIds = await existingClasses.map(($class) => $class.id);
+
+		data.classIds.sort();
+		existingClassIds.sort();
+
+		const missingIds = new Array<String>();
+		let index = 0;
+		data.classIds.forEach((requestedId) => {
+			if (requestedId != existingClassIds[index]) {
+				missingIds.push(requestedId);
+			} else index++;
+		});
+
+		// add the relations
+		await prisma.subject.update({
+			where: { id },
+			data: {
+				classes: {
+					connect: existingClassIds.map((classId) => {
+						return { id: classId };
+					}),
+				},
+			},
+		});
+
+		// return missing ids
+		return {
+			totalMissing: missingIds.length,
+			missingClasses: missingIds,
+		};
+	}
+
+	async removeClasses(id: string, data: MutateClassesDTO) {
+		this.validateSubject(id);
+
+		await prisma.subject.update({
+			where: { id },
+			data: {
+				classes: {
+					disconnect: data.classIds.map((classId) => {
+						return { id: classId };
+					}),
+				},
 			},
 		});
 	}

@@ -12,3 +12,11 @@ export type Subject = {
 export type CreateSubjectDTO = Omit<Subject, "id" | "status">;
 
 export type UpdateSubjectDTO = Partial<Omit<Subject, "id">>;
+
+export type MutateTeachersDTO = {
+	teacherIds: string[];
+};
+
+export type MutateClassesDTO = {
+	classIds: string[];
+};
