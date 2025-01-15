@@ -4,6 +4,7 @@ import { validStatuses } from "~/types";
 import { classService } from "./service";
 import { StatusCodes } from "http-status-codes";
 import { idParamsSchema } from "~/validation";
+import { asyncMiddleware } from "~/async-middleware";
 
 const classSchema = z.object({
 	name: z.string(),
@@ -16,18 +17,14 @@ export const createClassHandler = withValidation(
 	{
 		bodySchema: createClassBodySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const data = req.body as z.infer<typeof createClassBodySchema>;
-			await classService.create(data);
+	asyncMiddleware(async (req, res, next) => {
+		const data = req.body as z.infer<typeof createClassBodySchema>;
+		await classService.create(data);
 
-			res.status(StatusCodes.OK).json({
-				message: "Class created successfully.",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Class created successfully.",
+		});
+	})
 );
 
 const updateClassBodySchema = classSchema;
@@ -37,94 +34,74 @@ export const updateClassHandler = withValidation(
 		paramsSchema: idParamsSchema,
 		bodySchema: updateClassBodySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const data = req.body as z.infer<typeof updateClassBodySchema>;
-			const id = req.params.id;
-			await classService.update(id, data);
+	asyncMiddleware(async (req, res, next) => {
+		const data = req.body as z.infer<typeof updateClassBodySchema>;
+		const id = req.params.id;
+		await classService.update(id, data);
 
-			res.status(StatusCodes.OK).json({
-				message: "Class updated successfully.",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Class updated successfully.",
+		});
+	})
 );
 
 export const getClassesHandler = withValidation(
 	{
 		querySchema: listQuerySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const query = req.query as unknown as z.infer<typeof listQuerySchema>;
+	asyncMiddleware(async (req, res, next) => {
+		const query = req.query as unknown as z.infer<typeof listQuerySchema>;
 
-			const { data, total } = await classService.getAll(query);
-			res.status(StatusCodes.OK).json({
-				data,
-				total,
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		const { data, total } = await classService.getAll(query);
+		res.status(StatusCodes.OK).json({
+			data,
+			total,
+		});
+	})
 );
 
 export const getClassHandler = withValidation(
 	{
 		paramsSchema: idParamsSchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
-			const $class = await classService.getById(id);
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
+		const $class = await classService.getById(id);
 
-			res.status(StatusCodes.OK).json({
-				data: $class,
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			data: $class,
+		});
+	})
 );
 
 export const activateClassHandler = withValidation(
 	{
 		paramsSchema: idParamsSchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
 
-			await classService.update(id, { status: "active" });
+		await classService.update(id, { status: "active" });
 
-			res.status(StatusCodes.OK).json({
-				message: "Class activated successfully!",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Class activated successfully!",
+		});
+	})
 );
 
 export const deactivateClassHandler = withValidation(
 	{
 		paramsSchema: idParamsSchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
 
-			await classService.update(id, { status: "inactive" });
+		await classService.update(id, { status: "inactive" });
 
-			res.status(StatusCodes.OK).json({
-				message: "Class deactivated successfully!",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Class deactivated successfully!",
+		});
+	})
 );
 
 const mutateStudentsBodySchema = z.object({
@@ -136,24 +113,20 @@ export const addStudentsHandler = withValidation(
 		paramsSchema: idParamsSchema,
 		bodySchema: mutateStudentsBodySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
-			const data = req.body as z.infer<typeof mutateStudentsBodySchema>;
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
+		const data = req.body as z.infer<typeof mutateStudentsBodySchema>;
 
-			const missingStudents = await classService.addStudents(id, {
-				studentIds: data.studentIds,
-			});
+		const missingStudents = await classService.addStudents(id, {
+			studentIds: data.studentIds,
+		});
 
-			res.status(StatusCodes.OK).json({
-				message: "Students added successfully!",
-				missingStudents:
-					missingStudents.totalMissing > 0 ? missingStudents : undefined,
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Students added successfully!",
+			missingStudents:
+				missingStudents.totalMissing > 0 ? missingStudents : undefined,
+		});
+	})
 );
 
 export const removeStudentsHandler = withValidation(
@@ -161,22 +134,18 @@ export const removeStudentsHandler = withValidation(
 		paramsSchema: idParamsSchema,
 		bodySchema: mutateStudentsBodySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
-			const data = req.body as z.infer<typeof mutateStudentsBodySchema>;
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
+		const data = req.body as z.infer<typeof mutateStudentsBodySchema>;
 
-			await classService.removeStudents(id, {
-				studentIds: data.studentIds,
-			});
+		await classService.removeStudents(id, {
+			studentIds: data.studentIds,
+		});
 
-			res.status(StatusCodes.OK).json({
-				message: "Students removed successfully!",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Students removed successfully!",
+		});
+	})
 );
 
 const mutateSubjectsBodySchema = z.object({
@@ -188,24 +157,20 @@ export const addSubjectsHandler = withValidation(
 		paramsSchema: idParamsSchema,
 		bodySchema: mutateSubjectsBodySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
-			const data = req.body as z.infer<typeof mutateSubjectsBodySchema>;
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
+		const data = req.body as z.infer<typeof mutateSubjectsBodySchema>;
 
-			const missingSubjects = await classService.addSubjects(id, {
-				subjectIds: data.subjectIds,
-			});
+		const missingSubjects = await classService.addSubjects(id, {
+			subjectIds: data.subjectIds,
+		});
 
-			res.status(StatusCodes.OK).json({
-				message: "Subjects added successfully!",
-				missingSubjects:
-					missingSubjects.totalMissing > 0 ? missingSubjects : undefined,
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Subjects added successfully!",
+			missingSubjects:
+				missingSubjects.totalMissing > 0 ? missingSubjects : undefined,
+		});
+	})
 );
 
 export const removeSubjectsHandler = withValidation(
@@ -213,18 +178,14 @@ export const removeSubjectsHandler = withValidation(
 		paramsSchema: idParamsSchema,
 		bodySchema: mutateSubjectsBodySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
-			const data = req.body as z.infer<typeof mutateSubjectsBodySchema>;
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
+		const data = req.body as z.infer<typeof mutateSubjectsBodySchema>;
 
-			await classService.removeSubjects(id, { subjectIds: data.subjectIds });
+		await classService.removeSubjects(id, { subjectIds: data.subjectIds });
 
-			res.status(StatusCodes.OK).json({
-				message: "Subjects removed successfully!",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Subjects removed successfully!",
+		});
+	})
 );

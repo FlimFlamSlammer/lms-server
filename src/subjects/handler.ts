@@ -4,6 +4,7 @@ import { validStatuses } from "~/types";
 import { subjectService } from "./service";
 import { StatusCodes } from "http-status-codes";
 import { idParamsSchema } from "~/validation";
+import { asyncMiddleware } from "~/async-middleware";
 
 const subjectSchema = z.object({
 	name: z.string(),
@@ -18,18 +19,14 @@ export const createSubjectHandler = withValidation(
 	{
 		bodySchema: createSubjectBodySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const data = req.body as z.infer<typeof createSubjectBodySchema>;
-			await subjectService.create(data);
+	asyncMiddleware(async (req, res, next) => {
+		const data = req.body as z.infer<typeof createSubjectBodySchema>;
+		await subjectService.create(data);
 
-			res.status(StatusCodes.OK).json({
-				message: "Subject created successfully.",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Subject created successfully.",
+		});
+	})
 );
 
 const updateSubjectBodySchema = subjectSchema;
@@ -39,94 +36,74 @@ export const updateSubjectHandler = withValidation(
 		paramsSchema: idParamsSchema,
 		bodySchema: updateSubjectBodySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const data = req.body as z.infer<typeof updateSubjectBodySchema>;
-			const id = req.params.id;
-			await subjectService.update(id, data);
+	asyncMiddleware(async (req, res, next) => {
+		const data = req.body as z.infer<typeof updateSubjectBodySchema>;
+		const id = req.params.id;
+		await subjectService.update(id, data);
 
-			res.status(StatusCodes.OK).json({
-				message: "Subject updated successfully.",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Subject updated successfully.",
+		});
+	})
 );
 
 export const getSubjectsHandler = withValidation(
 	{
 		querySchema: listQuerySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const query = req.query as unknown as z.infer<typeof listQuerySchema>;
+	asyncMiddleware(async (req, res, next) => {
+		const query = req.query as unknown as z.infer<typeof listQuerySchema>;
 
-			const { data, total } = await subjectService.getAll(query);
-			res.status(StatusCodes.OK).json({
-				data,
-				total,
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		const { data, total } = await subjectService.getAll(query);
+		res.status(StatusCodes.OK).json({
+			data,
+			total,
+		});
+	})
 );
 
 export const getSubjectHandler = withValidation(
 	{
 		paramsSchema: idParamsSchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
-			const subject = await subjectService.getById(id);
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
+		const subject = await subjectService.getById(id);
 
-			res.status(StatusCodes.OK).json({
-				data: subject,
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			data: subject,
+		});
+	})
 );
 
 export const activateSubjectHandler = withValidation(
 	{
 		paramsSchema: idParamsSchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
 
-			await subjectService.update(id, { status: "active" });
+		await subjectService.update(id, { status: "active" });
 
-			res.status(StatusCodes.OK).json({
-				message: "Subject activated successfully!",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Subject activated successfully!",
+		});
+	})
 );
 
 export const deactivateSubjectHandler = withValidation(
 	{
 		paramsSchema: idParamsSchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
 
-			await subjectService.update(id, { status: "inactive" });
+		await subjectService.update(id, { status: "inactive" });
 
-			res.status(StatusCodes.OK).json({
-				message: "Subject deactivated successfully!",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Subject deactivated successfully!",
+		});
+	})
 );
 
 const mutateTeachersBodySchema = z.object({
@@ -138,24 +115,20 @@ export const addTeachersHandler = withValidation(
 		paramsSchema: idParamsSchema,
 		bodySchema: mutateTeachersBodySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
-			const data = req.body as z.infer<typeof mutateTeachersBodySchema>;
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
+		const data = req.body as z.infer<typeof mutateTeachersBodySchema>;
 
-			const missingTeachers = await subjectService.addTeachers(id, {
-				teacherIds: data.teacherIds,
-			});
+		const missingTeachers = await subjectService.addTeachers(id, {
+			teacherIds: data.teacherIds,
+		});
 
-			res.status(StatusCodes.OK).json({
-				message: "Teachers added successfully!",
-				missingTeachers:
-					missingTeachers.totalMissing > 0 ? missingTeachers : undefined,
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Teachers added successfully!",
+			missingTeachers:
+				missingTeachers.totalMissing > 0 ? missingTeachers : undefined,
+		});
+	})
 );
 
 export const removeTeachersHandler = withValidation(
@@ -163,20 +136,16 @@ export const removeTeachersHandler = withValidation(
 		paramsSchema: idParamsSchema,
 		bodySchema: mutateTeachersBodySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
-			const data = req.body as z.infer<typeof mutateTeachersBodySchema>;
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
+		const data = req.body as z.infer<typeof mutateTeachersBodySchema>;
 
-			await subjectService.removeTeachers(id, { teacherIds: data.teacherIds });
+		await subjectService.removeTeachers(id, { teacherIds: data.teacherIds });
 
-			res.status(StatusCodes.OK).json({
-				message: "Teachers removed successfully!",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Teachers removed successfully!",
+		});
+	})
 );
 
 const mutateClassesBodySchema = z.object({
@@ -188,24 +157,20 @@ export const addClassesHandler = withValidation(
 		paramsSchema: idParamsSchema,
 		bodySchema: mutateClassesBodySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
-			const data = req.body as z.infer<typeof mutateClassesBodySchema>;
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
+		const data = req.body as z.infer<typeof mutateClassesBodySchema>;
 
-			const missingClasses = await subjectService.addClasses(id, {
-				classIds: data.classIds,
-			});
+		const missingClasses = await subjectService.addClasses(id, {
+			classIds: data.classIds,
+		});
 
-			res.status(StatusCodes.OK).json({
-				message: "Classes added successfully!",
-				missingClasses:
-					missingClasses.totalMissing > 0 ? missingClasses : undefined,
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Classes added successfully!",
+			missingClasses:
+				missingClasses.totalMissing > 0 ? missingClasses : undefined,
+		});
+	})
 );
 
 export const removeClassesHandler = withValidation(
@@ -213,18 +178,14 @@ export const removeClassesHandler = withValidation(
 		paramsSchema: idParamsSchema,
 		bodySchema: mutateClassesBodySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
-			const data = req.body as z.infer<typeof mutateClassesBodySchema>;
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
+		const data = req.body as z.infer<typeof mutateClassesBodySchema>;
 
-			await subjectService.removeClasses(id, { classIds: data.classIds });
+		await subjectService.removeClasses(id, { classIds: data.classIds });
 
-			res.status(StatusCodes.OK).json({
-				message: "Classes removed successfully!",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Classes removed successfully!",
+		});
+	})
 );

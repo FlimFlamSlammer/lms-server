@@ -3,10 +3,11 @@ import { StatusCodes } from "http-status-codes";
 import { authService } from "./service";
 import { UserRole } from "~/users/types";
 import { createErrorWithMessage } from "~/error";
+import { asyncMiddleware } from "~/async-middleware";
 
 export const authMiddleware = (roles: UserRole[] = []) => {
-	return async (req: Request, res: Response, next: NextFunction) => {
-		try {
+	return asyncMiddleware(
+		async (req: Request, res: Response, next: NextFunction) => {
 			const authToken = req.cookies.authToken;
 			const user = await authService.verifyAuthToken(authToken);
 
@@ -24,8 +25,6 @@ export const authMiddleware = (roles: UserRole[] = []) => {
 
 			req.body.user = user;
 			next();
-		} catch (error) {
-			next(error);
 		}
-	};
+	);
 };

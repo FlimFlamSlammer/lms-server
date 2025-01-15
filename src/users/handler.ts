@@ -6,6 +6,7 @@ import { StatusCodes } from "http-status-codes";
 import { validUserRoles } from "./types";
 import { validStatuses } from "~/types";
 import { idParamsSchema } from "~/validation";
+import { asyncMiddleware } from "~/async-middleware";
 
 // base schemas
 const baseUserDataSchema = z.object({
@@ -53,49 +54,40 @@ export const createUserHandler = withValidation(
 	{
 		bodySchema: createUserBodySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const data = req.body as z.infer<typeof createUserBodySchema>;
-			await userService.create(data.userData, data.roleData);
-			res.status(StatusCodes.OK).json({
-				message: "User created successfully.",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+	asyncMiddleware(async (req, res, next) => {
+		const data = req.body as z.infer<typeof createUserBodySchema>;
+		await userService.create(data.userData, data.roleData);
+		res.status(StatusCodes.OK).json({
+			message: "User created successfully.",
+		});
+	})
 );
 
 export const getUsersHandler = withValidation(
 	{
 		querySchema: listQuerySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const query = req.query as unknown as z.infer<typeof listQuerySchema>;
+	asyncMiddleware(async (req, res, next) => {
+		const query = req.query as unknown as z.infer<typeof listQuerySchema>;
 
-			const users = await userService.getAll(query);
-			res.status(StatusCodes.OK).json({
-				data: users,
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		const users = await userService.getAll(query);
+		res.status(StatusCodes.OK).json({
+			data: users,
+		});
+	})
 );
 
 export const getUserHandler = withValidation(
 	{
 		paramsSchema: idParamsSchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
-			const user = await userService.getById(id);
-		} catch (error) {
-			next(error);
-		}
-	}
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
+		const user = await userService.getById(id);
+		res.status(StatusCodes.OK).json({
+			data: user,
+		});
+	})
 );
 
 const updateUserDataSchema = baseUserDataSchema.omit({ role: true });
@@ -108,58 +100,46 @@ export const updateUserHandler = withValidation(
 		paramsSchema: idParamsSchema,
 		bodySchema: updateUserBodySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const data = req.body as z.infer<typeof updateUserBodySchema>;
-			const id = req.params.id;
-			await userService.update(id, data.userData, data.roleData);
-			res.status(StatusCodes.OK).json({
-				message: "User created successfully.",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+	asyncMiddleware(async (req, res, next) => {
+		const data = req.body as z.infer<typeof updateUserBodySchema>;
+		const id = req.params.id;
+		await userService.update(id, data.userData, data.roleData);
+		res.status(StatusCodes.OK).json({
+			message: "User created successfully.",
+		});
+	})
 );
 
 export const activateUserHandler = withValidation(
 	{
 		paramsSchema: idParamsSchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
 
-			await userService.update(id, {
-				status: "active",
-			});
+		await userService.update(id, {
+			status: "active",
+		});
 
-			res.status(StatusCodes.OK).json({
-				message: "User activated successfully!",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "User activated successfully!",
+		});
+	})
 );
 
 export const deactivateUserHandler = withValidation(
 	{
 		paramsSchema: idParamsSchema,
 	},
-	async (req, res, next) => {
-		try {
-			const id = req.params.id;
+	asyncMiddleware(async (req, res, next) => {
+		const id = req.params.id;
 
-			await userService.update(id, {
-				status: "inactive",
-			});
+		await userService.update(id, {
+			status: "inactive",
+		});
 
-			res.status(StatusCodes.OK).json({
-				message: "User deactivated successfully!",
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "User deactivated successfully!",
+		});
+	})
 );

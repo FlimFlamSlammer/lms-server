@@ -3,6 +3,7 @@ import { z } from "zod";
 import { authService } from "./service";
 import { NextFunction, Request, Response } from "express";
 import { withValidation } from "~/validation";
+import { asyncMiddleware } from "~/async-middleware";
 
 const loginBodySchema = z.object({
 	email: z.string().email(),
@@ -13,23 +14,19 @@ export const loginHandler = withValidation(
 	{
 		bodySchema: loginBodySchema,
 	},
-	async (req, res, next) => {
-		try {
-			const data = req.body as z.infer<typeof loginBodySchema>;
-			const authToken = await authService.login(data.email, data.password);
+	asyncMiddleware(async (req, res, next) => {
+		const data = req.body as z.infer<typeof loginBodySchema>;
+		const authToken = await authService.login(data.email, data.password);
 
-			res.cookie("authToken", authToken, {
-				maxAge: 2 * 24 * 60 * 60 * 1000,
-			});
+		res.cookie("authToken", authToken, {
+			maxAge: 2 * 24 * 60 * 60 * 1000,
+		});
 
-			res.status(StatusCodes.OK).json({
-				message: "Logged in successfully.",
-				data: authToken,
-			});
-		} catch (error) {
-			next(error);
-		}
-	}
+		res.status(StatusCodes.OK).json({
+			message: "Logged in successfully.",
+			data: authToken,
+		});
+	})
 );
 
 export const logoutHandler = (
@@ -48,11 +45,7 @@ export const getUserHandler = (
 	res: Response,
 	next: NextFunction
 ) => {
-	try {
-		res.status(StatusCodes.OK).json({
-			data: req.body.user,
-		});
-	} catch (error) {
-		next(error);
-	}
+	res.status(StatusCodes.OK).json({
+		data: req.body.user,
+	});
 };
