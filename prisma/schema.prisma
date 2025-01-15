@@ -36,32 +36,33 @@ model Teacher {
     description     String?
     nig             String
     subjects        Subject[]
-    Assignment      Assignment[]
+    assignments     Assignment[]
 }
 
 model Student {
-    id                 String   @id
-    user               User     @relation(fields: [id], references: [id])
-    birthDate          DateTime
-    nis                String
-    description        String?
-    fatherName         String?
-    motherName         String?
-    guardianName       String?
-    contactPhoneNumber String
-    classes            Class[]
+    id                  String                @id
+    user                User                  @relation(fields: [id], references: [id])
+    birthDate           DateTime
+    nis                 String
+    description         String?
+    fatherName          String?
+    motherName          String?
+    guardianName        String?
+    contactPhoneNumber  String
+    classes             Class[]
+    assignmentToStudent AssignmentToStudent[]
 }
 
 model Subject {
-    id         String       @id @default(uuid())
-    name       String
-    grade      Int
-    startYear  Int
-    endYear    Int
-    status     String
-    teachers   Teacher[]
-    classes    Class[]
-    Assignment Assignment[]
+    id          String       @id @default(uuid())
+    name        String
+    grade       Int
+    startYear   Int
+    endYear     Int
+    status      String
+    teachers    Teacher[]
+    classes     Class[]
+    assignments Assignment[]
 }
 
 model Class {
@@ -73,14 +74,26 @@ model Class {
 }
 
 model Assignment {
-    id             String   @id @default(uuid())
-    teacher        Teacher  @relation(fields: [teacherId], references: [id])
-    teacherId      String
-    subject        Subject  @relation(fields: [subjectId], references: [id])
-    subjectId      String
+    id                  String                @id @default(uuid())
+    teacher             Teacher               @relation(fields: [teacherId], references: [id])
+    teacherId           String
+    subject             Subject               @relation(fields: [subjectId], references: [id])
+    subjectId           String
+    attachmentPath      String
+    status              String
+    startTime           DateTime
+    endTime             DateTime
+    maxGrade            Int
+    assignmentToStudent AssignmentToStudent[]
+}
+
+model AssignmentToStudent {
+    student        Student    @relation(fields: [studentId], references: [id])
+    studentId      String
+    assignment     Assignment @relation(fields: [assignmentId], references: [id])
+    assignmentId   String
+    grade          Int
     attachmentPath String
-    status         String
-    startTime      DateTime
-    endTime        DateTime
-    maxGrade       Int
+
+    @@id([studentId, assignmentId])
 }
