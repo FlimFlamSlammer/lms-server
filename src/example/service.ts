@@ -3,11 +3,11 @@ import { prismaInstance } from "~/prisma-client";
 const prisma = prismaInstance;
 
 class ExampleService {
-  constructor() {}
+    constructor() {}
 
-  list() {
-    return [];
-  }
+    list() {
+        return [];
+    }
 }
 
 export const exampleService = new ExampleService();

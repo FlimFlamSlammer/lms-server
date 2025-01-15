@@ -24,5 +24,5 @@ app.use("/api/v1", baseRouter);
 app.use(errorMiddleware);
 
 app.listen(PORT, () => {
-	console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });

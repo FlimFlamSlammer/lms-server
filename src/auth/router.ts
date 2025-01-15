@@ -4,11 +4,11 @@ import { authMiddleware } from "./middleware";
 import { SetupRouter } from "~/router";
 
 export const setupAuthRouter: SetupRouter = (router) => {
-	const authRouter = express.Router();
+    const authRouter = express.Router();
 
-	authRouter.post("/login", loginHandler);
-	authRouter.post("/logout", logoutHandler);
-	authRouter.get("/me", authMiddleware(), getUserHandler);
+    authRouter.post("/login", loginHandler);
+    authRouter.post("/logout", logoutHandler);
+    authRouter.get("/me", authMiddleware(), getUserHandler);
 
-	router.use("/auth", authRouter);
+    router.use("/auth", authRouter);
 };
