@@ -124,6 +124,8 @@ class ClassService {
 	}
 
 	async removeStudents(id: string, data: MutateStudentsDTO) {
+		this.validateClass(id);
+
 		await prisma.class.update({
 			where: {
 				id,
