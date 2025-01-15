@@ -2,6 +2,7 @@ import { prismaInstance } from "~/prisma-client";
 import { nanoid } from "nanoid";
 import {
     CreateSubjectDTO,
+    GetAllSubjectListParams,
     MutateClassesDTO,
     MutateTeachersDTO,
     Subject,
@@ -51,7 +52,14 @@ class SubjectService {
     // take: how many records of data that will be taken.
     // skip: how many data to skip.
 
-    async getAll({ page, search, size, mode, status }: ListParams) {
+    async getAll({
+        page,
+        search,
+        size,
+        mode,
+        status,
+        teacherId,
+    }: GetAllSubjectListParams) {
         const where = {
             status: status !== "all" ? status : undefined,
             name: search
@@ -59,6 +67,7 @@ class SubjectService {
                       contains: search, // name LIKE `%${search}%`
                   }
                 : undefined,
+            teacherId: teacherId !== "all" ? teacherId : undefined,
         };
 
         const subjects = (await prisma.subject.findMany({

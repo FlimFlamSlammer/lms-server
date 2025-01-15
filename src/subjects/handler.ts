@@ -47,12 +47,18 @@ export const updateSubjectHandler = withValidation(
     })
 );
 
+export const getSubjectsQuerySchema = listQuerySchema.extend({
+    teacherId: z.string().optional().default("all"),
+});
+
 export const getSubjectsHandler = withValidation(
     {
-        querySchema: listQuerySchema,
+        querySchema: getSubjectsQuerySchema,
     },
     asyncMiddleware(async (req, res, next) => {
-        const query = req.query as unknown as z.infer<typeof listQuerySchema>;
+        const query = req.query as unknown as z.infer<
+            typeof getSubjectsQuerySchema
+        >;
 
         const { data, total } = await subjectService.getAll(query);
         res.status(StatusCodes.OK).json({
