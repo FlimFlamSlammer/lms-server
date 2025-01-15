@@ -27,8 +27,8 @@ model User {
 }
 
 model Teacher {
-    id              String    @id
-    user            User      @relation(fields: [id], references: [id])
+    id              String       @id
+    user            User         @relation(fields: [id], references: [id])
     expertise       String?
     bachelorDegree  String?
     masterDegree    String?
@@ -36,6 +36,7 @@ model Teacher {
     description     String?
     nig             String
     subjects        Subject[]
+    Assignment      Assignment[]
 }
 
 model Student {
@@ -52,14 +53,15 @@ model Student {
 }
 
 model Subject {
-    id        String    @id @default(uuid())
-    name      String
-    grade     Int
-    startYear Int
-    endYear   Int
-    status    String
-    teachers  Teacher[]
-    classes   Class[]
+    id         String       @id @default(uuid())
+    name       String
+    grade      Int
+    startYear  Int
+    endYear    Int
+    status     String
+    teachers   Teacher[]
+    classes    Class[]
+    Assignment Assignment[]
 }
 
 model Class {
@@ -68,4 +70,17 @@ model Class {
     status   String
     subjects Subject[]
     students Student[]
+}
+
+model Assignment {
+    id             String   @id @default(uuid())
+    teacher        Teacher  @relation(fields: [teacherId], references: [id])
+    teacherId      String
+    subject        Subject  @relation(fields: [subjectId], references: [id])
+    subjectId      String
+    attachmentPath String
+    status         String
+    startTime      DateTime
+    endTime        DateTime
+    maxGrade       Int
 }
