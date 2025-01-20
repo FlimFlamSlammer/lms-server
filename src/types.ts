@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 export const validStatuses = ["active", "inactive"] as const;
 export type Status = (typeof validStatuses)[number];
 
@@ -8,3 +10,8 @@ export type ListParams = {
     search?: string;
     status: Status | "all";
 };
+
+export const stringDateTimeSchema = z
+    .string()
+    .datetime()
+    .transform((str) => new Date(str));
