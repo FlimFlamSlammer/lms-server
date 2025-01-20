@@ -4,7 +4,7 @@ import { userService } from "./service";
 import { Request, NextFunction, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { validUserRoles } from "./types";
-import { validStatuses } from "~/types";
+import { stringDateTimeSchema, validStatuses } from "~/types";
 import { idParamsSchema } from "~/validation";
 import { asyncMiddleware } from "~/async-middleware";
 
@@ -24,10 +24,7 @@ const baseUserDataSchema = z.object({
     profileImage: z.string().optional(),
 });
 const studentDataSchema = z.object({
-    birthDate: z
-        .string()
-        .date()
-        .transform((str) => new Date(str)),
+    birthDate: stringDateTimeSchema,
     nis: z.string(),
     description: z.string().optional(),
     fatherName: z.string().optional(),
