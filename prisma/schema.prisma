@@ -79,7 +79,7 @@ model Assignment {
     teacherId           String
     subject             Subject               @relation(fields: [subjectId], references: [id])
     subjectId           String
-    attachmentPath      String
+    attachmentPath      String?
     status              String
     startTime           DateTime
     endTime             DateTime
