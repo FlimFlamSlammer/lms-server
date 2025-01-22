@@ -22,8 +22,7 @@ export const authMiddleware = (roles: UserRole[] = []) => {
                     "User does not have permission."
                 );
             }
-
-            res.locals.user = user;
+            req.user = user;
             next();
         }
     );

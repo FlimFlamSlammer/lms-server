@@ -46,6 +46,6 @@ export const getUserHandler = (
     next: NextFunction
 ) => {
     res.status(StatusCodes.OK).json({
-        data: res.locals.user,
+        data: req.user,
     });
 };

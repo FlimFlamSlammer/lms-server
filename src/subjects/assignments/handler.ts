@@ -37,7 +37,7 @@ export const createAssignment = withValidation(
     },
     asyncMiddleware(async (req, res, next) => {
         const data = req.body as z.infer<typeof createAssignmentBodySchema>;
-        const user = res.locals.user as User;
+        const user = req.user as User;
 
         await assignmentService.create({
             subjectId: req.params.subjectId,
@@ -96,7 +96,7 @@ export const getAssignments = withValidation(
             typeof getAssignmentsQuerySchema
         >;
 
-        const user = res.locals.user as User;
+        const user = req.user as User;
         if (user.role == "student") {
             query.status = "posted";
             query.active = true;
@@ -125,7 +125,7 @@ export const getAssignment = withValidation(
             params.id
         );
 
-        const user = res.locals.user as User | null;
+        const user = req.user as User | null;
         if (
             user &&
             data &&
