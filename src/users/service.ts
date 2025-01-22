@@ -21,7 +21,18 @@ const prisma = prismaInstance;
 class UserService {
     constructor() {}
 
-    private async getUserDetails(user: User) {
+    async validateUser(id: string) {
+        const user = await this.getById(id);
+        if (!user) {
+            throw createErrorWithMessage(
+                StatusCodes.NOT_FOUND,
+                "User not found!"
+            );
+        }
+        return user;
+    }
+
+    async getUserRoleData(user: User) {
         if (user.role == "student") {
             return (await prisma.student.findFirst({
                 where: {
@@ -47,11 +58,11 @@ class UserService {
         })) as User;
 
         if (user) {
-            const details = await this.getUserDetails(user);
-            if (details) {
+            const roleData = await this.getUserRoleData(user);
+            if (roleData) {
                 return {
                     ...user,
-                    details,
+                    roleData,
                 };
             } else {
                 return user;
@@ -68,11 +79,11 @@ class UserService {
         })) as User;
 
         if (user) {
-            const details = await this.getUserDetails(user);
-            if (details) {
+            const roleData = await this.getUserRoleData(user);
+            if (roleData) {
                 return {
                     ...user,
-                    details,
+                    roleData,
                 };
             } else {
                 return user;
@@ -118,6 +129,10 @@ class UserService {
 
         const id = nanoid();
 
+        if (userData.password) {
+            userData.password = bcrypt.hashSync(userData.password);
+        }
+
         await prisma.$transaction(async (tx) => {
             await tx.user.create({
                 data: {
@@ -162,13 +177,7 @@ class UserService {
         userData: UpdateUserDTO,
         roleData: UpdateStudentDTO | UpdateTeacherDTO | null = null
     ) {
-        const user = await this.getById(id);
-        if (!user) {
-            throw createErrorWithMessage(
-                StatusCodes.NOT_FOUND,
-                "User not found!"
-            );
-        }
+        const user = await this.validateUser(id);
 
         if (userData.password) {
             userData.password = bcrypt.hashSync(userData.password);
