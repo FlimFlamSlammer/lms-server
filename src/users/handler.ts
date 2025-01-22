@@ -102,7 +102,7 @@ export const updateUserHandler = withValidation(
         const id = req.params.id;
         await userService.update(id, data.userData, data.roleData);
         res.status(StatusCodes.OK).json({
-            message: "User created successfully.",
+            message: "User updated successfully.",
         });
     })
 );
