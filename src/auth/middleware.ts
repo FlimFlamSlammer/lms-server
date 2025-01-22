@@ -23,7 +23,7 @@ export const authMiddleware = (roles: UserRole[] = []) => {
                 );
             }
 
-            req.body.user = user;
+            res.locals.user = user;
             next();
         }
     );

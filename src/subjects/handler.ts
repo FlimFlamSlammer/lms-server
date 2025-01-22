@@ -74,10 +74,10 @@ export const getSubjectHandler = withValidation(
     },
     asyncMiddleware(async (req, res, next) => {
         const id = req.params.id;
-        const subject = await subjectService.getById(id);
+        const data = await subjectService.getById(id);
 
         res.status(StatusCodes.OK).json({
-            data: subject,
+            data,
         });
     })
 );

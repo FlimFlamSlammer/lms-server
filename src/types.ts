@@ -10,8 +10,3 @@ export type ListParams = {
     search?: string;
     status: Status | "all";
 };
-
-export const stringDateTimeSchema = z
-    .string()
-    .datetime()
-    .transform((str) => new Date(str));

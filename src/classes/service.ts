@@ -15,7 +15,7 @@ const prisma = prismaInstance;
 class ClassService {
     constructor() {}
 
-    private async validateClass(id: string) {
+    async validateClass(id: string) {
         const $class = await this.getById(id);
         if (!$class) {
             throw createErrorWithMessage(

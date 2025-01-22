@@ -2,6 +2,7 @@ import { Handler } from "express";
 import { z } from "zod";
 import { createErrorWithMessage, createFieldError } from "./error";
 import { StatusCodes } from "http-status-codes";
+import { validStatuses } from "./types";
 
 type ValidationSchemas = {
     bodySchema?: z.Schema;
@@ -65,5 +66,13 @@ export const listQuerySchema = z.object({
     size: z.coerce.number().int().min(1).optional().default(10),
     mode: z.enum(["all", "pagination"]).optional().default("pagination"),
     search: z.string().optional(),
-    status: z.enum(["active", "inactive", "all"]).optional().default("all"),
+    status: z
+        .enum([...validStatuses, "all"] as const)
+        .optional()
+        .default("all"),
 });
+
+export const stringDateTimeSchema = z
+    .string()
+    .datetime()
+    .transform((str) => new Date(str));

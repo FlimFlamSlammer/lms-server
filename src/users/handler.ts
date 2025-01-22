@@ -4,8 +4,8 @@ import { userService } from "./service";
 import { Request, NextFunction, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { validUserRoles } from "./types";
-import { stringDateTimeSchema, validStatuses } from "~/types";
-import { idParamsSchema } from "~/validation";
+import { validStatuses } from "~/types";
+import { idParamsSchema, stringDateTimeSchema } from "~/validation";
 import { asyncMiddleware } from "~/async-middleware";
 
 // base schemas

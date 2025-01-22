@@ -75,6 +75,7 @@ model Class {
 
 model Assignment {
     id                  String                @id @default(uuid())
+    title               String
     teacher             Teacher               @relation(fields: [teacherId], references: [id])
     teacherId           String
     subject             Subject               @relation(fields: [subjectId], references: [id])

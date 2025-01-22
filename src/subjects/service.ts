@@ -8,7 +8,6 @@ import {
     Subject,
     UpdateSubjectDTO,
 } from "./types";
-import { ListParams } from "~/types";
 import { createErrorWithMessage } from "~/error";
 import { StatusCodes } from "http-status-codes";
 const prisma = prismaInstance;
@@ -16,7 +15,7 @@ const prisma = prismaInstance;
 class SubjectService {
     constructor() {}
 
-    private async validateSubject(id: string) {
+    async validateSubject(id: string) {
         const subject = await this.getById(id);
         if (!subject) {
             throw createErrorWithMessage(
@@ -24,6 +23,7 @@ class SubjectService {
                 "Subject not found!"
             );
         }
+        return subject;
     }
 
     create(data: CreateSubjectDTO) {
@@ -67,7 +67,14 @@ class SubjectService {
                       contains: search, // name LIKE `%${search}%`
                   }
                 : undefined,
-            teacherId: teacherId !== "all" ? teacherId : undefined,
+            teachers:
+                teacherId !== "all"
+                    ? {
+                          some: {
+                              id: teacherId,
+                          },
+                      }
+                    : undefined,
         };
 
         const subjects = (await prisma.subject.findMany({

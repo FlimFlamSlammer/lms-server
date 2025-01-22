@@ -66,10 +66,10 @@ export const getClassHandler = withValidation(
     },
     asyncMiddleware(async (req, res, next) => {
         const id = req.params.id;
-        const $class = await classService.getById(id);
+        const data = await classService.getById(id);
 
         res.status(StatusCodes.OK).json({
-            data: $class,
+            data,
         });
     })
 );
