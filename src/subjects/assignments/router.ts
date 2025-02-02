@@ -16,8 +16,6 @@ export const setupAssignmentsRouter: SetupRouter = (router) => {
         mergeParams: true,
     });
 
-    router.use("/:subjectId/assignments", assignmentsRouter);
-
     assignmentsRouter.get("/:id", authMiddleware(), getAssignment);
     assignmentsRouter.get("/", authMiddleware(), getAssignments);
 
@@ -30,4 +28,6 @@ export const setupAssignmentsRouter: SetupRouter = (router) => {
     assignmentsRouter.patch("/:id/draft", draftAssignment);
     assignmentsRouter.patch("/:id/post", postAssignment);
     assignmentsRouter.patch("/:id/cancel", cancelAssignment);
+
+    router.use("/:subjectId/assignments", assignmentsRouter);
 };

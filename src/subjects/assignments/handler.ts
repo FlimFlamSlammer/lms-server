@@ -11,6 +11,8 @@ import { assignmentService } from "./service";
 import { StatusCodes } from "http-status-codes";
 import { User } from "~/users/types";
 import { createErrorWithMessage, createFieldError } from "~/error";
+import { subjectService } from "../service";
+import { prismaInstance as prisma } from "~/prisma-client";
 
 const subjectIdParamsSchema = z.object({ subjectId: z.string() });
 
@@ -126,16 +128,37 @@ export const getAssignment = withValidation(
         );
 
         const user = req.user as User | null;
-        if (
-            user &&
-            data &&
-            user.role == "student" &&
-            (!assignmentService.started(params.subjectId, params.id) ||
-                data.status != "posted")
-        ) {
-            res.status(StatusCodes.OK).json({
-                data: null,
+        if (user && data && user.role == "student") {
+            if (
+                !assignmentService.started(params.subjectId, params.id) ||
+                data.status != "posted"
+            ) {
+                res.status(StatusCodes.NOT_FOUND).json({
+                    message: "Assignment not found!",
+                });
+            }
+
+            // check if the subject has a class that the student is enrolled in
+            const studentInSubject = prisma.subject.findFirst({
+                where: {
+                    id: params.subjectId,
+                    classes: {
+                        some: {
+                            students: {
+                                some: {
+                                    id: user.id,
+                                },
+                            },
+                        },
+                    },
+                },
             });
+
+            if (!studentInSubject) {
+                res.status(StatusCodes.NOT_FOUND).json({
+                    message: "Assignment not found!",
+                });
+            }
         }
 
         res.status(StatusCodes.OK).json({
