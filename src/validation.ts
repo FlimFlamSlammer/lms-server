@@ -1,6 +1,6 @@
 import { Handler } from "express";
 import { z } from "zod";
-import { createErrorWithMessage, createFieldError } from "./error";
+import { createErrorWithMessage } from "./error";
 import { StatusCodes } from "http-status-codes";
 import { validStatuses } from "./types";
 

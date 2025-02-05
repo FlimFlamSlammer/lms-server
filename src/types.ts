@@ -1,5 +1,3 @@
-import { z } from "zod";
-
 export const validStatuses = ["active", "inactive"] as const;
 export type Status = (typeof validStatuses)[number];
 
