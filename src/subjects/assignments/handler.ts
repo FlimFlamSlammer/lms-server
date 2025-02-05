@@ -10,8 +10,7 @@ import { asyncMiddleware } from "~/async-middleware";
 import { assignmentService } from "./service";
 import { StatusCodes } from "http-status-codes";
 import { User } from "~/users/types";
-import { createErrorWithMessage, createFieldError } from "~/error";
-import { subjectService } from "../service";
+import { createErrorWithMessage } from "~/error";
 import { prismaInstance as prisma } from "~/prisma-client";
 
 const subjectIdParamsSchema = z.object({ subjectId: z.string() });
@@ -21,24 +20,21 @@ const assignmentIdParamsSchema = z.intersection(
     subjectIdParamsSchema
 );
 
-const assignmentSchema = z.object({
+const mutateAssignmentSchema = z.object({
     title: z.string().min(1),
     attachmentPath: z.string().optional(),
-    status: z.enum(validAssignmentStatuses),
     startTime: stringDateTimeSchema,
     endTime: stringDateTimeSchema,
     maxGrade: z.number().min(1),
 });
 
-const createAssignmentBodySchema = assignmentSchema.omit({ status: true });
-
 export const createAssignment = withValidation(
     {
         paramsSchema: subjectIdParamsSchema,
-        bodySchema: createAssignmentBodySchema,
+        bodySchema: mutateAssignmentSchema,
     },
     asyncMiddleware(async (req, res, next) => {
-        const data = req.body as z.infer<typeof createAssignmentBodySchema>;
+        const data = req.body as z.infer<typeof mutateAssignmentSchema>;
         const user = req.user as User;
 
         await assignmentService.create({
@@ -53,15 +49,13 @@ export const createAssignment = withValidation(
     })
 );
 
-const updateAssignmentBodySchema = assignmentSchema;
-
 export const updateAssignment = withValidation(
     {
         paramsSchema: assignmentIdParamsSchema,
-        bodySchema: updateAssignmentBodySchema,
+        bodySchema: mutateAssignmentSchema,
     },
     asyncMiddleware(async (req, res, next) => {
-        const data = req.body as z.infer<typeof createAssignmentBodySchema>;
+        const data = req.body as z.infer<typeof mutateAssignmentSchema>;
         const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
         await assignmentService.update(params.subjectId, params.id, data);
 
