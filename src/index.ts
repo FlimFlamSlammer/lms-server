@@ -5,10 +5,18 @@ import { setupAuthRouter } from "./auth/router";
 import { setupUsersRouter } from "./users/router";
 import { setupSubjectsRouter } from "./subjects/router";
 import { setupClassesRouter } from "./classes/router";
-import { setupUploadRouter } from "./uploads";
+import path from "path";
+import fs from "fs";
+import { setupUploadRouter } from "./file/router";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+const UPLOAD_PATH = path.resolve("data");
+
+if (!fs.existsSync(UPLOAD_PATH)) {
+    fs.mkdirSync(UPLOAD_PATH);
+}
 
 app.use(express.json());
 app.use(cookieParser());

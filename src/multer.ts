@@ -38,4 +38,4 @@ export const uploadFile = multer({
 
         callback(null, true);
     },
-}).single("file");
+});
