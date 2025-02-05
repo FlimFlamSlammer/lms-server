@@ -127,7 +127,7 @@ export const getAssignment = withValidation(
             params.id
         );
 
-        const user = req.user as User | null;
+        const user = req.user;
         if (user && data && user.role == "student") {
             if (
                 !assignmentService.started(params.subjectId, params.id) ||
