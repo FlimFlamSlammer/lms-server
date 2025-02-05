@@ -15,6 +15,16 @@ if (!fs.existsSync(UPLOAD_PATH)) {
     fs.mkdirSync(UPLOAD_PATH);
 }
 
+const ALLOWED_EXTENTIONS = [
+    ".png",
+    ".pdf",
+    ".docx",
+    ".doc",
+    ".xlsx",
+    ".jpg",
+    ".jpeg",
+];
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, UPLOAD_PATH);
@@ -24,7 +34,23 @@ const storage = multer.diskStorage({
     },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+    storage,
+    limits: {
+        // byte,
+        // 1kb = approx 1000byte (real case its 1024byte)
+        fileSize: 10 * 1024 * 1024, // 10 MB
+    },
+    fileFilter: (req, file, callback) => {
+        const ext = path.extname(file.originalname);
+
+        if (ALLOWED_EXTENTIONS.every((e) => e !== ext)) {
+            return callback(new Error("File is not supported!"));
+        }
+
+        callback(null, true);
+    },
+});
 
 const uploadHandler: Handler = (req, res) => {
     if (!req.file) {
