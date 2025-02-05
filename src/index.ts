@@ -5,6 +5,7 @@ import { setupAuthRouter } from "./auth/router";
 import { setupUsersRouter } from "./users/router";
 import { setupSubjectsRouter } from "./subjects/router";
 import { setupClassesRouter } from "./classes/router";
+import { setupUploadRouter } from "./uploads";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,6 +19,7 @@ setupAuthRouter(baseRouter);
 setupUsersRouter(baseRouter);
 setupClassesRouter(baseRouter);
 setupSubjectsRouter(baseRouter);
+setupUploadRouter(baseRouter);
 
 app.use("/api/v1", baseRouter);
 

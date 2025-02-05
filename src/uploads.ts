@@ -5,6 +5,9 @@ import { nanoid } from "nanoid";
 import { Handler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { createErrorWithMessage } from "./error";
+import { SetupRouter } from "./router";
+import express from "express";
+import { authMiddleware } from "./auth/middleware";
 
 const UPLOAD_PATH = path.resolve("uploads");
 
@@ -40,8 +43,8 @@ const uploadHandler: Handler = (req, res) => {
 };
 
 const getFileHandler: Handler = (req, res) => {
-    const { filename } = req.params;
-    const filePath = path.join(UPLOAD_PATH, filename);
+    const { fileName } = req.params;
+    const filePath = path.join(UPLOAD_PATH, fileName);
 
     if (!fs.existsSync(filePath)) {
         res.status(StatusCodes.NOT_FOUND).json({
@@ -50,4 +53,16 @@ const getFileHandler: Handler = (req, res) => {
     }
 
     res.status(StatusCodes.OK).sendFile(filePath);
+};
+
+export const setupUploadRouter: SetupRouter = (router) => {
+    const uploadRouter = express.Router();
+
+    uploadRouter.use(
+        authMiddleware(["student", "teacher", "admin", "superadmin"])
+    );
+    uploadRouter.post("/", upload.single("file"), uploadHandler);
+    uploadRouter.get("/:fileName", getFileHandler);
+
+    router.use(uploadRouter);
 };
