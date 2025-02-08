@@ -1,11 +1,14 @@
 import { z } from "zod";
-import { listQuerySchema, withValidation } from "~/validation";
+import {
+    listQuerySchema,
+    stringDateSchema,
+    withValidation,
+} from "~/validation";
 import { userService } from "./service";
-import { Request, NextFunction, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { validUserRoles } from "./types";
 import { validStatuses } from "~/types";
-import { idParamsSchema, stringDateTimeSchema } from "~/validation";
+import { idParamsSchema } from "~/validation";
 import { asyncMiddleware } from "~/async-middleware";
 
 // base schemas
@@ -24,7 +27,7 @@ const baseUserDataSchema = z.object({
     profileImage: z.string().optional(),
 });
 const studentDataSchema = z.object({
-    birthDate: stringDateTimeSchema,
+    birthDate: stringDateSchema,
     nis: z.string(),
     description: z.string().optional(),
     fatherName: z.string().optional(),
