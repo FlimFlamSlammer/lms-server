@@ -12,6 +12,7 @@ import { StatusCodes } from "http-status-codes";
 import { User } from "~/users/types";
 import { createErrorWithMessage } from "~/error";
 import { prismaInstance as prisma } from "~/prisma-client";
+import { validBoolStrings } from "~/types";
 
 const subjectIdParamsSchema = z.object({ subjectId: z.string() });
 
@@ -73,11 +74,13 @@ const getAssignmentsQuerySchema = z.intersection(
             .optional()
             .default("all"),
         active: z
-            .string()
-            .transform((str: string): Boolean => {
-                return str == "true";
-            })
-            .optional(),
+            .enum([...validBoolStrings, "all"] as const)
+            .optional()
+            .default("all"),
+        done: z
+            .enum([...validBoolStrings, "all"] as const)
+            .optional()
+            .default("all"),
     })
 );
 
@@ -95,7 +98,7 @@ export const getAssignments = withValidation(
         const user = req.user as User;
         if (user.role == "student") {
             query.status = "posted";
-            query.active = true;
+            query.active = "true";
         }
 
         const { data, total } = await assignmentService.getAll(

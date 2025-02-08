@@ -61,11 +61,11 @@ class AssignmentService {
 
     async getAll(
         subjectId: string,
-        { page, search, size, mode, status, active }: AssignmentListParams
+        { page, search, size, mode, status, active, done }: AssignmentListParams
     ) {
         subjectService.validateSubject(subjectId);
 
-        const where = {
+        const where: any = {
             subjectId,
             status: status !== "all" ? status : undefined,
             title: search
@@ -73,17 +73,40 @@ class AssignmentService {
                       contains: search, // name LIKE `%${search}%`
                   }
                 : undefined,
-            startTime: active
-                ? {
-                      lte: new Date().toISOString(),
-                  }
-                : undefined,
-            endTime: active
-                ? {
-                      gt: new Date().toISOString(),
-                  }
-                : undefined,
         };
+
+        if (active == "true") {
+            where.startTime = {
+                lte: new Date().toISOString(),
+            };
+            where.endTime = {
+                gt: new Date().toISOString(),
+            };
+        } else if (active == "false") {
+            where.OR = [
+                {
+                    startTime: {
+                        gt: new Date().toISOString(),
+                    },
+                },
+                {
+                    endTime: {
+                        lte: new Date().toISOString(),
+                    },
+                },
+            ];
+        }
+
+        if (done == "true") {
+            where.assignmentToStudent = {
+                some: {},
+            };
+        } else if (done == "false") {
+            where.assignmentToStudent = {
+                none: {},
+            };
+        }
+
         console.log(new Date().toISOString());
 
         const assignments = (await prisma.assignment.findMany({
