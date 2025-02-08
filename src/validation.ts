@@ -72,6 +72,11 @@ export const listQuerySchema = z.object({
         .default("all"),
 });
 
+export const stringDateSchema = z
+    .string()
+    .date()
+    .transform((str) => new Date(str));
+
 export const stringDateTimeSchema = z
     .string()
     .datetime()
