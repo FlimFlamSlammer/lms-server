@@ -163,7 +163,14 @@ class AssignmentService {
     ): Promise<Assignment> {
         await this.validateAssignment(subjectId, id);
 
-        prisma.assignment.findFirst({
+        if (!this.started(subjectId, id)) {
+            throw createErrorWithMessage(
+                StatusCodes.FORBIDDEN,
+                "Assignment hasn't started yet!"
+            );
+        }
+
+        const submission = await prisma.assignment.findFirst({
             where: {
                 subjectId,
                 id,
@@ -174,6 +181,13 @@ class AssignmentService {
                 },
             },
         });
+
+        if (submission) {
+            throw createErrorWithMessage(
+                StatusCodes.BAD_REQUEST,
+                "Cannot resubmit assignments!"
+            );
+        }
 
         return (await prisma.assignment.update({
             where: {
