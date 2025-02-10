@@ -46,3 +46,8 @@ export const getFileHandler = withValidation(
         res.status(StatusCodes.OK).sendFile(filePath);
     }
 );
+
+export const fileExists = (fileName: string): boolean => {
+    const filePath = path.join(UPLOAD_PATH, fileName);
+    return fs.existsSync(filePath);
+};

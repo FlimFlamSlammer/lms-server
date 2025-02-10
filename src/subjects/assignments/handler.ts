@@ -13,6 +13,7 @@ import { User } from "~/users/types";
 import { createErrorWithMessage } from "~/error";
 import { prismaInstance as prisma } from "~/prisma-client";
 import { validBoolStrings } from "~/types";
+import { fileExists } from "~/file/handler";
 
 const subjectIdParamsSchema = z.object({ subjectId: z.string() });
 
@@ -34,7 +35,7 @@ export const createAssignment = withValidation(
         paramsSchema: subjectIdParamsSchema,
         bodySchema: mutateAssignmentSchema,
     },
-    asyncMiddleware(async (req, res, next) => {
+    asyncMiddleware(async (req, res) => {
         const data = req.body as z.infer<typeof mutateAssignmentSchema>;
         const user = req.user as User;
 
@@ -55,7 +56,7 @@ export const updateAssignment = withValidation(
         paramsSchema: assignmentIdParamsSchema,
         bodySchema: mutateAssignmentSchema,
     },
-    asyncMiddleware(async (req, res, next) => {
+    asyncMiddleware(async (req, res) => {
         const data = req.body as z.infer<typeof mutateAssignmentSchema>;
         const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
         await assignmentService.update(params.subjectId, params.id, data);
@@ -89,7 +90,7 @@ export const getAssignments = withValidation(
         paramsSchema: subjectIdParamsSchema,
         querySchema: getAssignmentsQuerySchema,
     },
-    asyncMiddleware(async (req, res, next) => {
+    asyncMiddleware(async (req, res) => {
         const params = req.params as z.infer<typeof subjectIdParamsSchema>;
         const query = req.query as unknown as z.infer<
             typeof getAssignmentsQuerySchema
@@ -117,7 +118,7 @@ export const getAssignment = withValidation(
     {
         paramsSchema: assignmentIdParamsSchema,
     },
-    asyncMiddleware(async (req, res, next) => {
+    asyncMiddleware(async (req, res) => {
         const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
         const data = await assignmentService.getById(
             params.subjectId,
@@ -168,7 +169,7 @@ export const postAssignment = withValidation(
     {
         paramsSchema: assignmentIdParamsSchema,
     },
-    asyncMiddleware(async (req, res, next) => {
+    asyncMiddleware(async (req, res) => {
         const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
 
         const assignment = await assignmentService.getById(
@@ -197,7 +198,7 @@ export const draftAssignment = withValidation(
     {
         paramsSchema: assignmentIdParamsSchema,
     },
-    asyncMiddleware(async (req, res, next) => {
+    asyncMiddleware(async (req, res) => {
         const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
 
         const assignment = await assignmentService.getById(
@@ -233,7 +234,7 @@ export const cancelAssignment = withValidation(
     {
         paramsSchema: assignmentIdParamsSchema,
     },
-    asyncMiddleware(async (req, res, next) => {
+    asyncMiddleware(async (req, res) => {
         const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
         await assignmentService.update(params.subjectId, params.id, {
             status: "canceled",
@@ -241,6 +242,40 @@ export const cancelAssignment = withValidation(
 
         res.status(StatusCodes.OK).json({
             message: "Assignment canceled successfully!",
+        });
+    })
+);
+
+const submitAssignmentBodySchema = z.object({
+    attachmentPath: z.string(),
+});
+
+export const submitAssignment = withValidation(
+    {
+        paramsSchema: assignmentIdParamsSchema,
+        bodySchema: submitAssignmentBodySchema,
+    },
+    asyncMiddleware((req, res) => {
+        if (!req.user) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                message: "forgot to use auth middleware",
+            });
+            return;
+        }
+
+        const filePath = req.body.attachmentPath;
+        const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
+
+        if (!filePath || !fileExists(filePath)) {
+            res.status(StatusCodes.BAD_REQUEST).json({
+                message: "Attachment file not found!",
+            });
+            return;
+        }
+
+        assignmentService.submit(params.subjectId, params.id, {
+            attachmentPath: filePath,
+            studentId: req.user.id,
         });
     })
 );

@@ -13,6 +13,14 @@ export type Assignment = {
     startTime: Date;
     endTime: Date;
     maxGrade: number;
+    students?: AssignmentToStudent[];
+};
+
+export type AssignmentToStudent = {
+    studentId: string;
+    assignmentId: string;
+    grade?: number;
+    attachmentPath: string;
 };
 
 export type CreateAssignmentDTO = Omit<Assignment, "id" | "status">;
@@ -23,4 +31,9 @@ export type AssignmentListParams = Omit<ListParams, "status"> & {
     status: AssignmentStatus | "all";
     active: String;
     done: String;
+};
+
+export type SubmitAssignmentDTO = {
+    studentId: string;
+    attachmentPath: string;
 };

@@ -40,17 +40,17 @@ model Teacher {
 }
 
 model Student {
-    id                  String                @id
-    user                User                  @relation(fields: [id], references: [id])
-    birthDate           DateTime
-    nis                 String
-    description         String?
-    fatherName          String?
-    motherName          String?
-    guardianName        String?
-    contactPhoneNumber  String
-    classes             Class[]
-    assignmentToStudent AssignmentToStudent[]
+    id                 String                @id
+    user               User                  @relation(fields: [id], references: [id])
+    birthDate          DateTime
+    nis                String
+    description        String?
+    fatherName         String?
+    motherName         String?
+    guardianName       String?
+    contactPhoneNumber String
+    classes            Class[]
+    assignments        AssignmentToStudent[]
 }
 
 model Subject {
@@ -74,18 +74,18 @@ model Class {
 }
 
 model Assignment {
-    id                  String                @id @default(uuid())
-    title               String
-    teacher             Teacher               @relation(fields: [teacherId], references: [id])
-    teacherId           String
-    subject             Subject               @relation(fields: [subjectId], references: [id])
-    subjectId           String
-    attachmentPath      String?
-    status              String
-    startTime           DateTime
-    endTime             DateTime
-    maxGrade            Int
-    assignmentToStudent AssignmentToStudent[]
+    id             String                @id @default(uuid())
+    title          String
+    teacher        Teacher               @relation(fields: [teacherId], references: [id])
+    teacherId      String
+    subject        Subject               @relation(fields: [subjectId], references: [id])
+    subjectId      String
+    attachmentPath String?
+    status         String
+    startTime      DateTime
+    endTime        DateTime
+    maxGrade       Int
+    students       AssignmentToStudent[]
 }
 
 model AssignmentToStudent {
@@ -93,7 +93,7 @@ model AssignmentToStudent {
     studentId      String
     assignment     Assignment @relation(fields: [assignmentId], references: [id])
     assignmentId   String
-    grade          Int
+    grade          Int?
     attachmentPath String
 
     @@id([studentId, assignmentId])
