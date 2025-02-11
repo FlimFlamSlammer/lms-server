@@ -13,5 +13,5 @@ export const setupUploadRouter: SetupRouter = (router) => {
     uploadRouter.post("/upload", uploadFile.single("file"), uploadHandler);
     uploadRouter.get("/:fileName", getFileHandler);
 
-    router.use("/file", uploadRouter);
+    router.use("/files", uploadRouter);
 };
