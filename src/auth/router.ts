@@ -8,7 +8,7 @@ export const setupAuthRouter: SetupRouter = (router) => {
 
     authRouter.post("/login", loginHandler);
     authRouter.post("/logout", logoutHandler);
-    authRouter.get("/me", authMiddleware(["teacher"]), getUserHandler);
+    authRouter.get("/me", authMiddleware(), getUserHandler);
 
     router.use("/auth", authRouter);
 };
