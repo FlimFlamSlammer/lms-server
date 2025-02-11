@@ -40,8 +40,8 @@ model Teacher {
 }
 
 model Student {
-    id                 String                @id
-    user               User                  @relation(fields: [id], references: [id])
+    id                 String       @id
+    user               User         @relation(fields: [id], references: [id])
     birthDate          DateTime
     nis                String
     description        String?
@@ -50,7 +50,7 @@ model Student {
     guardianName       String?
     contactPhoneNumber String
     classes            Class[]
-    assignments        AssignmentToStudent[]
+    assignments        Submission[]
 }
 
 model Subject {
@@ -62,7 +62,7 @@ model Subject {
     status      String
     teachers    Teacher[]
     classes     Class[]
-    assignments Assignment[]
+    submissions Assignment[]
 }
 
 model Class {
@@ -74,21 +74,21 @@ model Class {
 }
 
 model Assignment {
-    id             String                @id @default(uuid())
+    id             String       @id @default(uuid())
     title          String
-    teacher        Teacher               @relation(fields: [teacherId], references: [id])
+    teacher        Teacher      @relation(fields: [teacherId], references: [id])
     teacherId      String
-    subject        Subject               @relation(fields: [subjectId], references: [id])
+    subject        Subject      @relation(fields: [subjectId], references: [id])
     subjectId      String
     attachmentPath String?
     status         String
     startTime      DateTime
     endTime        DateTime
     maxGrade       Int
-    students       AssignmentToStudent[]
+    submissions    Submission[]
 }
 
-model AssignmentToStudent {
+model Submission {
     student        Student    @relation(fields: [studentId], references: [id])
     studentId      String
     assignment     Assignment @relation(fields: [assignmentId], references: [id])
