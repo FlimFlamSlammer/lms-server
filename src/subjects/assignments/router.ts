@@ -21,7 +21,7 @@ export const setupAssignmentsRouter: SetupRouter = (router) => {
     assignmentsRouter.get("/", authMiddleware(), getAssignmentsHandler);
 
     assignmentsRouter.post(
-        "/:id",
+        "/:id/submit",
         authMiddleware(["student"]),
         submitAssignmentHandler
     );
