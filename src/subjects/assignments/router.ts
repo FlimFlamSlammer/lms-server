@@ -20,14 +20,19 @@ export const setupAssignmentsRouter: SetupRouter = (router) => {
     assignmentsRouter.get("/:id", authMiddleware(), getAssignmentHandler);
     assignmentsRouter.get("/", authMiddleware(), getAssignmentsHandler);
 
-    assignmentsRouter.use(authMiddleware(["teacher", "admin", "superadmin"]));
-
-    assignmentsRouter.post("/", createAssignmentHandler);
     assignmentsRouter.post(
         "/:id",
         authMiddleware(["student"]),
         submitAssignmentHandler
     );
+
+    assignmentsRouter.post(
+        "/",
+        authMiddleware(["teacher"]),
+        createAssignmentHandler
+    );
+
+    assignmentsRouter.use(authMiddleware(["teacher", "admin", "superadmin"]));
 
     assignmentsRouter.put("/:id", updateAssignmentHandler);
 
