@@ -30,7 +30,7 @@ const mutateAssignmentSchema = z.object({
     maxGrade: z.number().min(1),
 });
 
-export const createAssignment = withValidation(
+export const createAssignmentHandler = withValidation(
     {
         paramsSchema: subjectIdParamsSchema,
         bodySchema: mutateAssignmentSchema,
@@ -51,7 +51,7 @@ export const createAssignment = withValidation(
     })
 );
 
-export const updateAssignment = withValidation(
+export const updateAssignmentHandler = withValidation(
     {
         paramsSchema: assignmentIdParamsSchema,
         bodySchema: mutateAssignmentSchema,
@@ -85,7 +85,7 @@ const getAssignmentsQuerySchema = z.intersection(
     })
 );
 
-export const getAssignments = withValidation(
+export const getAssignmentsHandler = withValidation(
     {
         paramsSchema: subjectIdParamsSchema,
         querySchema: getAssignmentsQuerySchema,
@@ -114,7 +114,7 @@ export const getAssignments = withValidation(
     })
 );
 
-export const getAssignment = withValidation(
+export const getAssignmentHandler = withValidation(
     {
         paramsSchema: assignmentIdParamsSchema,
     },
@@ -165,7 +165,7 @@ export const getAssignment = withValidation(
     })
 );
 
-export const postAssignment = withValidation(
+export const postAssignmentHandler = withValidation(
     {
         paramsSchema: assignmentIdParamsSchema,
     },
@@ -194,7 +194,7 @@ export const postAssignment = withValidation(
     })
 );
 
-export const draftAssignment = withValidation(
+export const draftAssignmentHandler = withValidation(
     {
         paramsSchema: assignmentIdParamsSchema,
     },
@@ -230,7 +230,7 @@ export const draftAssignment = withValidation(
     })
 );
 
-export const cancelAssignment = withValidation(
+export const cancelAssignmentHandler = withValidation(
     {
         paramsSchema: assignmentIdParamsSchema,
     },
@@ -250,7 +250,7 @@ const submitAssignmentBodySchema = z.object({
     attachmentPath: z.string(),
 });
 
-export const submitAssignment = withValidation(
+export const submitAssignmentHandler = withValidation(
     {
         paramsSchema: assignmentIdParamsSchema,
         bodySchema: submitAssignmentBodySchema,
@@ -258,7 +258,7 @@ export const submitAssignment = withValidation(
     asyncMiddleware((req, res) => {
         if (!req.user) {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-                message: "forgot to use auth middleware",
+                message: "Forgot to authenticate?",
             });
             return;
         }

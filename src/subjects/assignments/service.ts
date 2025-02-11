@@ -4,14 +4,13 @@ import { prismaInstance as prisma } from "~/prisma-client";
 import {
     Assignment,
     AssignmentListParams,
+    AssignmentToStudent,
     CreateAssignmentDTO,
     SubmitAssignmentDTO,
     UpdateAssignmentDTO,
 } from "./types";
-import { ListParams } from "~/types";
 import { nanoid } from "nanoid";
 import { subjectService } from "../service";
-import { boolean, date } from "zod";
 
 class AssignmentService {
     constructor() {}
@@ -37,7 +36,7 @@ class AssignmentService {
                 id: nanoid(),
                 status: "draft",
                 ...data,
-                students: undefined,
+                submissions: undefined,
             },
         })) as Assignment;
     }
@@ -55,7 +54,7 @@ class AssignmentService {
             },
             data: {
                 ...data,
-                students: undefined,
+                submissions: undefined,
             },
         })) as Assignment;
     }
@@ -130,22 +129,22 @@ class AssignmentService {
         id: string,
         studentId: string | null = null
     ): Promise<Assignment | null> {
-        return (await prisma.assignment.findFirst({
+        const assignment = (await prisma.assignment.findFirst({
             where: {
                 id,
                 subjectId,
-                students: studentId
-                    ? {
-                          some: {
-                              studentId,
-                          },
-                      }
-                    : undefined,
-            },
-            include: {
-                students: true,
             },
         })) as Assignment | null;
+
+        if (assignment) {
+            assignment.submissions = await this.getSubmissions(
+                subjectId,
+                id,
+                studentId
+            );
+        }
+
+        return assignment;
     }
 
     async started(subjectId: string, id: string): Promise<Boolean> {
@@ -154,6 +153,21 @@ class AssignmentService {
         const curDate = new Date();
 
         return curDate >= assignment.startTime && curDate < assignment.endTime;
+    }
+
+    async getSubmissions(
+        subjectId: string,
+        id: string,
+        studentId: string | null
+    ) {
+        this.validateAssignment(subjectId, id);
+
+        return (await prisma.submission.findMany({
+            where: {
+                assignmentId: id,
+                studentId: studentId ? studentId : undefined,
+            },
+        })) as AssignmentToStudent[];
     }
 
     async submit(
@@ -170,17 +184,11 @@ class AssignmentService {
             );
         }
 
-        const submission = await prisma.assignment.findFirst({
-            where: {
-                subjectId,
-                id,
-                students: {
-                    some: {
-                        studentId: data.studentId,
-                    },
-                },
-            },
-        });
+        const submission = await this.getSubmissions(
+            subjectId,
+            id,
+            data.studentId
+        );
 
         if (submission) {
             throw createErrorWithMessage(
@@ -195,7 +203,7 @@ class AssignmentService {
                 id,
             },
             data: {
-                students: {
+                submissions: {
                     create: [data],
                 },
             },

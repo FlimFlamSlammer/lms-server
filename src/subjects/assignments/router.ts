@@ -2,13 +2,14 @@ import express from "express";
 import { SetupRouter } from "~/router";
 import { authMiddleware } from "~/auth/middleware";
 import {
-    cancelAssignment,
-    createAssignment,
-    draftAssignment,
-    getAssignment,
-    getAssignments,
-    postAssignment,
-    updateAssignment,
+    cancelAssignmentHandler,
+    createAssignmentHandler,
+    draftAssignmentHandler,
+    getAssignmentHandler,
+    getAssignmentsHandler,
+    postAssignmentHandler,
+    submitAssignmentHandler,
+    updateAssignmentHandler,
 } from "./handler";
 
 export const setupAssignmentsRouter: SetupRouter = (router) => {
@@ -16,18 +17,23 @@ export const setupAssignmentsRouter: SetupRouter = (router) => {
         mergeParams: true,
     });
 
-    assignmentsRouter.get("/:id", authMiddleware(), getAssignment);
-    assignmentsRouter.get("/", authMiddleware(), getAssignments);
+    assignmentsRouter.get("/:id", authMiddleware(), getAssignmentHandler);
+    assignmentsRouter.get("/", authMiddleware(), getAssignmentsHandler);
 
     assignmentsRouter.use(authMiddleware(["teacher", "admin", "superadmin"]));
 
-    assignmentsRouter.post("/", createAssignment);
+    assignmentsRouter.post("/", createAssignmentHandler);
+    assignmentsRouter.post(
+        "/:id",
+        authMiddleware(["student"]),
+        submitAssignmentHandler
+    );
 
-    assignmentsRouter.put("/:id", updateAssignment);
+    assignmentsRouter.put("/:id", updateAssignmentHandler);
 
-    assignmentsRouter.patch("/:id/draft", draftAssignment);
-    assignmentsRouter.patch("/:id/post", postAssignment);
-    assignmentsRouter.patch("/:id/cancel", cancelAssignment);
+    assignmentsRouter.patch("/:id/draft", draftAssignmentHandler);
+    assignmentsRouter.patch("/:id/post", postAssignmentHandler);
+    assignmentsRouter.patch("/:id/cancel", cancelAssignmentHandler);
 
     router.use("/:subjectId/assignments", assignmentsRouter);
 };

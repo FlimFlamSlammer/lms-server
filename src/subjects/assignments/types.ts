@@ -13,7 +13,7 @@ export type Assignment = {
     startTime: Date;
     endTime: Date;
     maxGrade: number;
-    students?: AssignmentToStudent[];
+    submissions?: AssignmentToStudent[];
 };
 
 export type AssignmentToStudent = {
