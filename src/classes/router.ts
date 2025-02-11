@@ -17,13 +17,21 @@ import { authMiddleware } from "~/auth/middleware";
 export const setupClassesRouter: SetupRouter = (router) => {
     const classesRouter = express.Router();
 
+    classesRouter.get(
+        "/:id",
+        authMiddleware(["student", "teacher", "admin", "superadmin"]),
+        getClassHandler
+    );
+    classesRouter.get(
+        "/",
+        authMiddleware(["student", "teacher", "admin", "superadmin"]),
+        getClassesHandler
+    );
+
     classesRouter.use(authMiddleware(["admin", "superadmin"]));
 
     classesRouter.post("/", createClassHandler);
     classesRouter.put("/:id", updateClassHandler);
-
-    classesRouter.get("/:id", getClassHandler);
-    classesRouter.get("/", getClassesHandler);
 
     classesRouter.patch("/:id/activate", activateClassHandler);
     classesRouter.patch("/:id/deactivate", deactivateClassHandler);

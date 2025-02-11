@@ -56,8 +56,9 @@ export const createUserHandler = withValidation(
     },
     asyncMiddleware(async (req, res, next) => {
         const data = req.body as z.infer<typeof createUserBodySchema>;
-        await userService.create(data.userData, data.roleData);
+        const created = await userService.create(data.userData, data.roleData);
         res.status(StatusCodes.OK).json({
+            data: created,
             message: "User created successfully.",
         });
     })

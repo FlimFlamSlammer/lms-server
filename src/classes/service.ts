@@ -25,25 +25,25 @@ class ClassService {
         }
     }
 
-    create(data: CreateClassDTO) {
-        return prisma.class.create({
+    async create(data: CreateClassDTO): Promise<Class> {
+        return (await prisma.class.create({
             data: {
                 id: nanoid(),
                 status: "active",
                 ...data,
             },
-        });
+        })) as Class;
     }
 
-    async update(id: string, data: UpdateClassDTO) {
+    async update(id: string, data: UpdateClassDTO): Promise<Class> {
         this.validateClass(id);
 
-        await prisma.class.update({
+        return (await prisma.class.update({
             where: {
                 id,
             },
             data: data,
-        });
+        })) as Class;
     }
 
     async getAll({ page, search, size, mode, status }: ListParams) {

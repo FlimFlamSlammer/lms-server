@@ -19,9 +19,10 @@ export const createClassHandler = withValidation(
     },
     asyncMiddleware(async (req, res, next) => {
         const data = req.body as z.infer<typeof createClassBodySchema>;
-        await classService.create(data);
+        const created = await classService.create(data);
 
         res.status(StatusCodes.OK).json({
+            data: created,
             message: "Class created successfully.",
         });
     })

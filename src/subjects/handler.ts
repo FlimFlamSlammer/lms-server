@@ -21,9 +21,10 @@ export const createSubjectHandler = withValidation(
     },
     asyncMiddleware(async (req, res, next) => {
         const data = req.body as z.infer<typeof createSubjectBodySchema>;
-        await subjectService.create(data);
+        const created = await subjectService.create(data);
 
         res.status(StatusCodes.OK).json({
+            data: created,
             message: "Subject created successfully.",
         });
     })

@@ -39,13 +39,14 @@ export const createAssignmentHandler = withValidation(
         const data = req.body as z.infer<typeof mutateAssignmentSchema>;
         const user = req.user as User;
 
-        await assignmentService.create({
+        const created = await assignmentService.create({
             subjectId: req.params.subjectId,
             teacherId: user.id,
             ...data,
         });
 
         res.status(StatusCodes.OK).json({
+            data: created,
             message: "Assignment created successfully!",
         });
     })
