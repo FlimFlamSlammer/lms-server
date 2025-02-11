@@ -90,7 +90,7 @@ export const getAssignmentsHandler = withValidation(
         paramsSchema: subjectIdParamsSchema,
         querySchema: getAssignmentsQuerySchema,
     },
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async (req, res, next) => {
         const params = req.params as z.infer<typeof subjectIdParamsSchema>;
         const query = req.query as unknown as z.infer<
             typeof getAssignmentsQuerySchema
@@ -118,7 +118,7 @@ export const getAssignmentHandler = withValidation(
     {
         paramsSchema: assignmentIdParamsSchema,
     },
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async (req, res, next) => {
         const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
         const data = await assignmentService.getById(
             params.subjectId,

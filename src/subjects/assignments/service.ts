@@ -46,7 +46,7 @@ class AssignmentService {
         id: string,
         data: UpdateAssignmentDTO
     ): Promise<Assignment> {
-        this.validateAssignment(subjectId, id);
+        await this.validateAssignment(subjectId, id);
 
         return (await prisma.assignment.update({
             where: {
@@ -63,7 +63,7 @@ class AssignmentService {
         subjectId: string,
         { page, search, size, mode, status, active, done }: AssignmentListParams
     ) {
-        subjectService.validateSubject(subjectId);
+        await subjectService.validateSubject(subjectId);
 
         const where: any = {
             subjectId,
@@ -160,7 +160,7 @@ class AssignmentService {
         id: string,
         studentId: string | null
     ) {
-        this.validateAssignment(subjectId, id);
+        await this.validateAssignment(subjectId, id);
 
         return (await prisma.submission.findMany({
             where: {
