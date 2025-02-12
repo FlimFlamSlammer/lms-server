@@ -256,7 +256,7 @@ export const submitAssignmentHandler = withValidation(
         paramsSchema: assignmentIdParamsSchema,
         bodySchema: submitAssignmentBodySchema,
     },
-    asyncMiddleware((req, res) => {
+    asyncMiddleware(async (req, res) => {
         if (!req.user) {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 message: "Forgot to authenticate?",
@@ -274,9 +274,13 @@ export const submitAssignmentHandler = withValidation(
             return;
         }
 
-        assignmentService.submit(params.subjectId, params.id, {
+        await assignmentService.submit(params.subjectId, params.id, {
             attachmentPath: filePath,
             studentId: req.user.id,
+        });
+
+        res.status(StatusCodes.ACCEPTED).json({
+            message: "Assignment submitted successfully!",
         });
     })
 );

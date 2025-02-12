@@ -19,8 +19,13 @@ class AssignmentService {
         subjectId: string,
         id: string
     ): Promise<Assignment> {
-        subjectService.validateSubject(subjectId);
-        const assignment = await this.getById(subjectId, id);
+        await subjectService.validateSubject(subjectId);
+        const assignment = (await prisma.assignment.findFirst({
+            where: {
+                subjectId,
+                id,
+            },
+        })) as Assignment;
         if (!assignment) {
             throw createErrorWithMessage(
                 StatusCodes.NOT_FOUND,
@@ -152,7 +157,11 @@ class AssignmentService {
 
         const curDate = new Date();
 
-        return curDate >= assignment.startTime && curDate < assignment.endTime;
+        return (
+            curDate >= assignment.startTime &&
+            curDate < assignment.endTime &&
+            assignment.status == "posted"
+        );
     }
 
     async getSubmissions(
@@ -175,9 +184,10 @@ class AssignmentService {
         id: string,
         data: SubmitAssignmentDTO
     ): Promise<Assignment> {
+        console.log("NAH");
         await this.validateAssignment(subjectId, id);
-
-        if (!this.started(subjectId, id)) {
+        console.log("YEAH");
+        if (!(await this.started(subjectId, id))) {
             throw createErrorWithMessage(
                 StatusCodes.FORBIDDEN,
                 "Assignment hasn't started yet!"
@@ -190,7 +200,7 @@ class AssignmentService {
             data.studentId
         );
 
-        if (submission) {
+        if (submission.length) {
             throw createErrorWithMessage(
                 StatusCodes.BAD_REQUEST,
                 "Cannot resubmit assignments!"
