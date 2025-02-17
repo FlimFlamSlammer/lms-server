@@ -14,6 +14,7 @@ import { createErrorWithMessage } from "~/error";
 import { prismaInstance as prisma } from "~/prisma-client";
 import { validBoolStrings } from "~/types";
 import { fileExists } from "~/file/handler";
+import { getAssignmentsQuerySchema } from "./validation";
 
 const subjectIdParamsSchema = z.object({ subjectId: z.string() });
 
@@ -68,24 +69,6 @@ export const updateAssignmentHandler = withValidation(
     })
 );
 
-const getAssignmentsQuerySchema = z.intersection(
-    listQuerySchema.omit({ status: true }),
-    z.object({
-        status: z
-            .enum([...validAssignmentStatuses, "all"] as const)
-            .optional()
-            .default("all"),
-        active: z
-            .enum([...validBoolStrings, "all"] as const)
-            .optional()
-            .default("all"),
-        done: z
-            .enum([...validBoolStrings, "all"] as const)
-            .optional()
-            .default("all"),
-    })
-);
-
 export const getAssignmentsHandler = withValidation(
     {
         paramsSchema: subjectIdParamsSchema,
@@ -97,10 +80,9 @@ export const getAssignmentsHandler = withValidation(
             typeof getAssignmentsQuerySchema
         >;
 
-        const user = req.user as User;
-        if (user.role == "student") {
+        if (req.user?.role == "student") {
             query.status = "posted";
-            query.active = "true";
+            query.started = "true";
         }
 
         const { data, total } = await assignmentService.getAll(

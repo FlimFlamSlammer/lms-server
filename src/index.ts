@@ -8,6 +8,7 @@ import { setupClassesRouter } from "./classes/router";
 import path from "path";
 import fs from "fs";
 import { setupUploadRouter } from "./file/router";
+import { setupAssignmentsRouter } from "./assignments/router";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -28,6 +29,7 @@ setupUsersRouter(baseRouter);
 setupClassesRouter(baseRouter);
 setupSubjectsRouter(baseRouter);
 setupUploadRouter(baseRouter);
+setupAssignmentsRouter(baseRouter);
 
 app.use("/api/v1", baseRouter);
 

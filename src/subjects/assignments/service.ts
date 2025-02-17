@@ -66,7 +66,16 @@ class AssignmentService {
 
     async getAll(
         subjectId: string,
-        { page, search, size, mode, status, active, done }: AssignmentListParams
+        {
+            page,
+            search,
+            size,
+            mode,
+            status,
+            active,
+            done,
+            started,
+        }: AssignmentListParams
     ) {
         await subjectService.validateSubject(subjectId);
 
@@ -100,6 +109,16 @@ class AssignmentService {
                     },
                 },
             ];
+        }
+
+        if (started == "true") {
+            where.startTime = {
+                lte: new Date().toISOString(),
+            };
+        } else if (started == "false") {
+            where.startTime = {
+                gt: new Date().toISOString(),
+            };
         }
 
         if (done == "true") {
@@ -157,10 +176,16 @@ class AssignmentService {
 
         const curDate = new Date();
 
+        return curDate >= assignment.startTime && assignment.status == "posted";
+    }
+
+    async canSubmit(subjectId: string, id: string): Promise<Boolean> {
+        const assignment = await this.validateAssignment(subjectId, id);
+
+        const curDate = new Date();
+
         return (
-            curDate >= assignment.startTime &&
-            curDate < assignment.endTime &&
-            assignment.status == "posted"
+            (await this.started(subjectId, id)) && curDate < assignment.endTime
         );
     }
 
@@ -187,7 +212,7 @@ class AssignmentService {
         console.log("NAH");
         await this.validateAssignment(subjectId, id);
         console.log("YEAH");
-        if (!(await this.started(subjectId, id))) {
+        if (!(await this.canSubmit(subjectId, id))) {
             throw createErrorWithMessage(
                 StatusCodes.FORBIDDEN,
                 "Assignment hasn't started yet!"

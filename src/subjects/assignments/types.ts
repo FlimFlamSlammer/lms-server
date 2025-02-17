@@ -29,8 +29,9 @@ export type UpdateAssignmentDTO = Partial<Omit<Assignment, "id">>;
 
 export type AssignmentListParams = Omit<ListParams, "status"> & {
     status: AssignmentStatus | "all";
-    active: String;
-    done: String;
+    active: string;
+    done: string;
+    started: string;
 };
 
 export type SubmitAssignmentDTO = {
