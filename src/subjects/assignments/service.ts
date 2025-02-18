@@ -11,6 +11,7 @@ import {
 } from "./types";
 import { nanoid } from "nanoid";
 import { subjectService } from "../service";
+import { User } from "~/users/types";
 
 class AssignmentService {
     constructor() {}
@@ -209,9 +210,7 @@ class AssignmentService {
         id: string,
         data: SubmitAssignmentDTO
     ): Promise<Assignment> {
-        console.log("NAH");
         await this.validateAssignment(subjectId, id);
-        console.log("YEAH");
         if (!(await this.canSubmit(subjectId, id))) {
             throw createErrorWithMessage(
                 StatusCodes.FORBIDDEN,
