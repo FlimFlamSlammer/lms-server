@@ -9,7 +9,8 @@ export const authMiddleware = (roles: UserRole[] = []) => {
     return asyncMiddleware(
         async (req: Request, res: Response, next: NextFunction) => {
             const authToken = req.cookies.authToken;
-            const user = await authService.verifyAuthToken(authToken);
+            const user =
+                req.user || (await authService.verifyAuthToken(authToken));
 
             if (
                 roles.length &&
