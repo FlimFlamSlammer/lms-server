@@ -40,7 +40,13 @@ class AssignmentService {
                 },
             };
         } else if (user.role == "teacher") {
-            where.teacherId = user.id;
+            where.subject = {
+                teachers: {
+                    some: {
+                        id: user.id,
+                    },
+                },
+            };
         }
 
         if (active == "true") {

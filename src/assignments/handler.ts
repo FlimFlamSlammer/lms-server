@@ -10,6 +10,13 @@ export const getAssignmentsHandler = withValidation(
         querySchema: getAssignmentsQuerySchema,
     },
     asyncMiddleware(async (req, res) => {
+        if (!req.user) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                message: "forgot to use auth middleware",
+            });
+            return;
+        }
+
         const query = req.query as unknown as z.infer<
             typeof getAssignmentsQuerySchema
         >;
@@ -19,7 +26,7 @@ export const getAssignmentsHandler = withValidation(
             query.started = "true";
         }
 
-        const { data, total } = await assignmentService.getAll(query);
+        const { data, total } = await assignmentService.getAll(query, req.user);
 
         res.status(StatusCodes.OK).json({
             data,
