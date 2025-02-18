@@ -10,10 +10,46 @@ import {
 } from "./types";
 import { createErrorWithMessage } from "~/error";
 import { StatusCodes } from "http-status-codes";
+import { User } from "~/users/types";
 const prisma = prismaInstance;
 
 class SubjectService {
     constructor() {}
+
+    async userInSubject(id: string, user: User) {
+        let where = {};
+        if (user.role == "student") {
+            where = {
+                classes: {
+                    some: {
+                        students: {
+                            some: {
+                                id: user.id,
+                            },
+                        },
+                    },
+                },
+            };
+        }
+        if (user.role == "teacher") {
+            where = {
+                teachers: {
+                    some: {
+                        id: user.id,
+                    },
+                },
+            };
+        }
+
+        const subject = prisma.subject.findFirst({
+            where: {
+                id,
+                ...where,
+            },
+        });
+
+        return subject != null;
+    }
 
     async validateSubject(id: string) {
         const subject = await this.getById(id);

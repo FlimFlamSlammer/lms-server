@@ -14,9 +14,12 @@ import {
 import { SetupRouter } from "~/router";
 import { authMiddleware } from "~/auth/middleware";
 import { setupAssignmentsRouter } from "./assignments/router";
+import { subjectAuthMiddleware } from "./middleware";
 
 export const setupSubjectsRouter: SetupRouter = (router) => {
     const subjectsRouter = express.Router();
+
+    subjectsRouter.use(authMiddleware(), subjectAuthMiddleware);
 
     setupAssignmentsRouter(subjectsRouter);
 
