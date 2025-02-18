@@ -6,7 +6,11 @@ import { getAssignmentsHandler } from "./handler";
 export const setupAssignmentsRouter: SetupRouter = (router) => {
     const assignmentsRouter = express.Router();
 
-    assignmentsRouter.get("/", authMiddleware(), getAssignmentsHandler);
+    assignmentsRouter.get(
+        "/",
+        authMiddleware(["student", "teacher", "admin", "superadmin"]),
+        getAssignmentsHandler
+    );
 
     router.use("/assignments", assignmentsRouter);
 };
