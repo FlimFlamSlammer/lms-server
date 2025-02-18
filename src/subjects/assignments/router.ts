@@ -11,14 +11,17 @@ import {
     submitAssignmentHandler,
     updateAssignmentHandler,
 } from "./handler";
+import { subjectAuthMiddleware } from "../middleware";
 
 export const setupAssignmentsRouter: SetupRouter = (router) => {
     const assignmentsRouter = express.Router({
         mergeParams: true,
     });
 
-    assignmentsRouter.get("/:id", authMiddleware(), getAssignmentHandler);
-    assignmentsRouter.get("/", authMiddleware(), getAssignmentsHandler);
+    assignmentsRouter.use(authMiddleware(), subjectAuthMiddleware);
+
+    assignmentsRouter.get("/:id", getAssignmentHandler);
+    assignmentsRouter.get("/", getAssignmentsHandler);
 
     assignmentsRouter.post(
         "/:id/submit",

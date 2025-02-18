@@ -2,10 +2,16 @@ import { asyncMiddleware } from "~/async-middleware";
 import { subjectService } from "./service";
 import { idParamsSchema, withValidation } from "~/validation";
 import { StatusCodes } from "http-status-codes";
+import { z } from "zod";
+
+const subjectAuthMiddlewareSchema = z.object({
+    id: z.string().optional(),
+    subjectId: z.string().optional(),
+});
 
 export const subjectAuthMiddleware = withValidation(
     {
-        paramsSchema: idParamsSchema,
+        paramsSchema: subjectAuthMiddlewareSchema,
     },
     asyncMiddleware(async (req, res, next) => {
         if (!req.user) {
@@ -15,7 +21,9 @@ export const subjectAuthMiddleware = withValidation(
             return;
         }
 
-        if (await subjectService.userInSubject(req.body.id, req.user)) {
+        let id = req.params.subjectId || req.params.id;
+
+        if (await subjectService.userInSubject(id, req.user)) {
             next();
         } else {
             res.status(StatusCodes.UNAUTHORIZED).json({

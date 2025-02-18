@@ -41,7 +41,7 @@ class SubjectService {
             };
         }
 
-        const subject = prisma.subject.findFirst({
+        const subject = await prisma.subject.findFirst({
             where: {
                 id,
                 ...where,
