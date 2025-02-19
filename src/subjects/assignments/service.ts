@@ -8,6 +8,7 @@ import {
     CreateAssignmentDTO,
     SubmitAssignmentDTO,
     UpdateAssignmentDTO,
+    UpdateSubmissionDTO,
 } from "./types";
 import { nanoid } from "nanoid";
 import { subjectService } from "../service";
@@ -123,11 +124,11 @@ class AssignmentService {
         }
 
         if (done == "true") {
-            where.assignmentToStudent = {
+            where.submissions = {
                 some: {},
             };
         } else if (done == "false") {
-            where.assignmentToStudent = {
+            where.submissions = {
                 none: {},
             };
         }
@@ -242,6 +243,40 @@ class AssignmentService {
                 },
             },
         })) as Assignment;
+    }
+
+    async updateSubmission(
+        subjectId: string,
+        id: string,
+        studentId: string,
+        data: UpdateSubmissionDTO
+    ) {
+        await this.validateAssignment(subjectId, id);
+        if (!(await this.canSubmit(subjectId, id))) {
+            throw createErrorWithMessage(
+                StatusCodes.FORBIDDEN,
+                "Assignment hasn't started yet!"
+            );
+        }
+
+        const submission = await this.getSubmissions(subjectId, id, studentId);
+
+        if (!submission.length) {
+            throw createErrorWithMessage(
+                StatusCodes.BAD_REQUEST,
+                "Submission does not exist!"
+            );
+        }
+
+        return await prisma.submission.update({
+            where: {
+                studentId_assignmentId: {
+                    studentId,
+                    assignmentId: id,
+                },
+            },
+            data,
+        });
     }
 }
 

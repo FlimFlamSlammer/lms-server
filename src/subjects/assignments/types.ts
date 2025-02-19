@@ -38,3 +38,7 @@ export type SubmitAssignmentDTO = {
     studentId: string;
     attachmentPath: string;
 };
+
+export type UpdateSubmissionDTO = {
+    grade: number;
+};

@@ -82,11 +82,11 @@ class AssignmentService {
         }
 
         if (done == "true") {
-            where.assignmentToStudent = {
+            where.submissions = {
                 some: {},
             };
         } else if (done == "false") {
-            where.assignmentToStudent = {
+            where.submissions = {
                 none: {},
             };
         }
