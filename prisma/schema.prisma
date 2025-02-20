@@ -95,7 +95,7 @@ model Submission {
     assignmentId   String
     grade          Int?
     attachmentPath String
-    gradedAt       DateTime
+    gradedAt       DateTime?
 
     @@id([studentId, assignmentId])
 }

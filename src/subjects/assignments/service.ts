@@ -13,6 +13,7 @@ import {
 import { nanoid } from "nanoid";
 import { subjectService } from "../service";
 import { User } from "~/users/types";
+import { Submission } from "@prisma/client";
 
 class AssignmentService {
     constructor() {}
@@ -91,23 +92,25 @@ class AssignmentService {
                 : undefined,
         };
 
+        const now = new Date();
+
         if (active == "true") {
             where.startTime = {
-                lte: new Date().toISOString(),
+                lte: now,
             };
             where.endTime = {
-                gt: new Date().toISOString(),
+                gt: now,
             };
         } else if (active == "false") {
             where.OR = [
                 {
                     startTime: {
-                        gt: new Date().toISOString(),
+                        gt: now,
                     },
                 },
                 {
                     endTime: {
-                        lte: new Date().toISOString(),
+                        lte: now,
                     },
                 },
             ];
@@ -115,11 +118,11 @@ class AssignmentService {
 
         if (started == "true") {
             where.startTime = {
-                lte: new Date().toISOString(),
+                lte: now,
             };
         } else if (started == "false") {
             where.startTime = {
-                gt: new Date().toISOString(),
+                gt: now,
             };
         }
 
@@ -133,7 +136,7 @@ class AssignmentService {
             };
         }
 
-        console.log(new Date().toISOString());
+        console.log(now);
 
         const assignments = (await prisma.assignment.findMany({
             ...(mode === "pagination"
@@ -210,7 +213,7 @@ class AssignmentService {
         subjectId: string,
         id: string,
         data: SubmitAssignmentDTO
-    ): Promise<Assignment> {
+    ): Promise<Submission> {
         await this.validateAssignment(subjectId, id);
         if (!(await this.canSubmit(subjectId, id))) {
             throw createErrorWithMessage(
@@ -232,17 +235,12 @@ class AssignmentService {
             );
         }
 
-        return (await prisma.assignment.update({
-            where: {
-                subjectId,
-                id,
-            },
+        return await prisma.submission.create({
             data: {
-                submissions: {
-                    create: [data],
-                },
+                assignmentId: id,
+                ...data,
             },
-        })) as Assignment;
+        });
     }
 
     async updateSubmission(
@@ -250,7 +248,7 @@ class AssignmentService {
         id: string,
         studentId: string,
         data: UpdateSubmissionDTO
-    ) {
+    ): Promise<Submission> {
         await this.validateAssignment(subjectId, id);
         if (!(await this.canSubmit(subjectId, id))) {
             throw createErrorWithMessage(
@@ -274,6 +272,7 @@ class AssignmentService {
                     studentId,
                     assignmentId: id,
                 },
+                gradedAt: new Date(),
             },
             data,
         });

@@ -49,23 +49,24 @@ class AssignmentService {
             };
         }
 
+        const now = new Date();
         if (active == "true") {
             where.startTime = {
-                lte: new Date().toISOString(),
+                lte: now,
             };
             where.endTime = {
-                gt: new Date().toISOString(),
+                gt: now,
             };
         } else if (active == "false") {
             where.OR = [
                 {
                     startTime: {
-                        gt: new Date().toISOString(),
+                        gt: now,
                     },
                 },
                 {
                     endTime: {
-                        lte: new Date().toISOString(),
+                        lte: now,
                     },
                 },
             ];
@@ -73,11 +74,11 @@ class AssignmentService {
 
         if (started == "true") {
             where.startTime = {
-                lte: new Date().toISOString(),
+                lte: now,
             };
         } else if (started == "false") {
             where.startTime = {
-                gt: new Date().toISOString(),
+                gt: now,
             };
         }
 
@@ -91,7 +92,7 @@ class AssignmentService {
             };
         }
 
-        console.log(new Date().toISOString());
+        console.log(now);
 
         const assignments = (await prisma.assignment.findMany({
             ...(mode === "pagination"
