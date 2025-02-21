@@ -243,7 +243,7 @@ class AssignmentService {
         });
     }
 
-    async updateSubmission(
+    async grade(
         subjectId: string,
         id: string,
         studentId: string,

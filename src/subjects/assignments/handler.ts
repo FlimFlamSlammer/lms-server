@@ -239,13 +239,6 @@ export const submitAssignmentHandler = withValidation(
         bodySchema: submitAssignmentBodySchema,
     },
     asyncMiddleware(async (req, res) => {
-        if (!req.user) {
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-                message: "Forgot to authenticate?",
-            });
-            return;
-        }
-
         const filePath = req.body.attachmentPath;
         const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
 
@@ -265,4 +258,15 @@ export const submitAssignmentHandler = withValidation(
             message: "Assignment submitted successfully!",
         });
     })
+);
+
+const gradeAssignmentBodySchema = z.object({
+    grade: z.string(),
+});
+
+export const gradeAssignmentHandler = withValidation(
+    {
+        bodySchema: gradeAssignmentBodySchema,
+    },
+    asyncMiddleware((req, res) => {})
 );
