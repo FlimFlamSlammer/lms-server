@@ -264,9 +264,31 @@ const gradeAssignmentBodySchema = z.object({
     grade: z.string(),
 });
 
+const gradeAssignmentParamsSchema = z.intersection(
+    assignmentIdParamsSchema,
+    z.object({
+        studentId: z.string(),
+    })
+);
+
 export const gradeAssignmentHandler = withValidation(
     {
+        paramsSchema: gradeAssignmentParamsSchema,
         bodySchema: gradeAssignmentBodySchema,
     },
-    asyncMiddleware((req, res) => {})
+    asyncMiddleware(async (req, res) => {
+        const params = req.params as z.infer<
+            typeof gradeAssignmentParamsSchema
+        >;
+        await assignmentService.grade(
+            params.subjectId,
+            params.id,
+            params.studentId,
+            req.body
+        );
+
+        res.status(StatusCodes.ACCEPTED).json({
+            message: "Assignment graded successfully!",
+        });
+    })
 );

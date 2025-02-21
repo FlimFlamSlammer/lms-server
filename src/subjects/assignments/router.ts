@@ -7,6 +7,7 @@ import {
     draftAssignmentHandler,
     getAssignmentHandler,
     getAssignmentsHandler,
+    gradeAssignmentHandler,
     postAssignmentHandler,
     submitAssignmentHandler,
     updateAssignmentHandler,
@@ -38,6 +39,10 @@ export const setupAssignmentsRouter: SetupRouter = (router) => {
     assignmentsRouter.use(authMiddleware(["teacher", "admin", "superadmin"]));
 
     assignmentsRouter.put("/:id", updateAssignmentHandler);
+    assignmentsRouter.put(
+        "/:id/submissions/:studentId/grade",
+        gradeAssignmentHandler
+    );
 
     assignmentsRouter.patch("/:id/draft", draftAssignmentHandler);
     assignmentsRouter.patch("/:id/post", postAssignmentHandler);
