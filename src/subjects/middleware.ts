@@ -9,7 +9,7 @@ const subjectAuthMiddlewareSchema = z.object({
     subjectId: z.string().optional(),
 });
 
-export const subjectAuthMiddleware = withValidation(
+export const subjectAccessMiddleware = withValidation(
     {
         paramsSchema: subjectAuthMiddlewareSchema,
     },

@@ -20,7 +20,3 @@ export type MutateTeachersDTO = {
 export type MutateClassesDTO = {
     classIds: string[];
 };
-
-export type GetAllSubjectListParams = ListParams & {
-    teacherId?: string;
-};

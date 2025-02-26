@@ -2,7 +2,6 @@ import { prismaInstance } from "~/prisma-client";
 import { nanoid } from "nanoid";
 import {
     CreateSubjectDTO,
-    GetAllSubjectListParams,
     MutateClassesDTO,
     MutateTeachersDTO,
     Subject,
@@ -11,6 +10,7 @@ import {
 import { createErrorWithMessage } from "~/error";
 import { StatusCodes } from "http-status-codes";
 import { User } from "~/users/types";
+import { ListParams } from "~/types";
 const prisma = prismaInstance;
 
 class SubjectService {
@@ -85,33 +85,36 @@ class SubjectService {
         })) as Subject;
     }
 
-    // take: how many records of data that will be taken.
-    // skip: how many data to skip.
-
-    async getAll({
-        page,
-        search,
-        size,
-        mode,
-        status,
-        teacherId,
-    }: GetAllSubjectListParams) {
-        const where = {
+    async getAll(
+        { page, search, size, mode, status }: ListParams,
+        user: User | null = null
+    ) {
+        const where: any = {
             status: status !== "all" ? status : undefined,
             name: search
                 ? {
-                      contains: search, // name LIKE `%${search}%`
+                      contains: search,
                   }
                 : undefined,
-            teachers:
-                teacherId !== "all"
-                    ? {
-                          some: {
-                              id: teacherId,
-                          },
-                      }
-                    : undefined,
         };
+
+        if (user?.role == "teacher") {
+            where.teachers = {
+                some: {
+                    id: user.id,
+                },
+            };
+        } else if (user?.role == "student") {
+            where.classes = {
+                some: {
+                    students: {
+                        some: {
+                            id: user.id,
+                        },
+                    },
+                },
+            };
+        }
 
         const subjects = (await prisma.subject.findMany({
             ...(mode === "pagination"

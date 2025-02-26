@@ -14,19 +14,24 @@ import {
 import { SetupRouter } from "~/router";
 import { authMiddleware } from "~/auth/middleware";
 import { setupAssignmentsRouter } from "./assignments/router";
+import { subjectAccessMiddleware } from "./middleware";
 
 export const setupSubjectsRouter: SetupRouter = (router) => {
     const subjectsRouter = express.Router();
 
     setupAssignmentsRouter(subjectsRouter);
 
+    subjectsRouter.use(
+        authMiddleware(["student", "teacher", "admin", "superadmin"])
+    );
+
+    subjectsRouter.get("/:id", subjectAccessMiddleware, getSubjectHandler);
+    subjectsRouter.get("/", getSubjectsHandler);
+
     subjectsRouter.use(authMiddleware(["admin", "superadmin"]));
 
     subjectsRouter.post("/", createSubjectHandler);
     subjectsRouter.put("/:id", updateSubjectHandler);
-
-    subjectsRouter.get("/:id", getSubjectHandler);
-    subjectsRouter.get("/", getSubjectsHandler);
 
     subjectsRouter.patch("/:id/activate", activateSubjectHandler);
     subjectsRouter.patch("/:id/deactivate", deactivateSubjectHandler);
