@@ -1,6 +1,6 @@
 import { Handler } from "express";
 import { z } from "zod";
-import { createErrorWithMessage } from "./error";
+import { createErrorWithMessage, createFieldError } from "./error";
 import { StatusCodes } from "http-status-codes";
 import { validStatuses } from "./types";
 
@@ -34,19 +34,15 @@ export const withValidation = (
             handler(req, res, next);
         } catch (error) {
             if (error instanceof z.ZodError) {
-                // const fields = error.errors.reduce(
-                // 	(acc, { path, message }) => ({
-                // 		...acc,
-                // 		[path.join(".")]: message,
-                // 	}),
-                // 	{}
-                // );
-                // const response = {
-                // 	status: 400,
-                // 	error: fields,
-                // };
-                // throw createFieldError(fields);
-                next(error);
+                const fields = error.errors.reduce(
+                    (acc, { path, message }) => ({
+                        ...acc,
+                        [path.join(".")]: message,
+                    }),
+                    {}
+                );
+
+                throw createFieldError(fields);
             }
 
             throw createErrorWithMessage(
