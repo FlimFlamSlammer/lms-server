@@ -18,10 +18,6 @@ export const loginHandler = withValidation(
         const data = req.body as z.infer<typeof loginBodySchema>;
         const authToken = await authService.login(data.email, data.password);
 
-        res.cookie("authToken", authToken, {
-            maxAge: 2 * 24 * 60 * 60 * 1000,
-        });
-
         res.status(StatusCodes.OK).json({
             message: "Logged in successfully.",
             data: authToken,
@@ -34,7 +30,6 @@ export const logoutHandler = (
     res: Response,
     next: NextFunction
 ) => {
-    res.clearCookie("authToken");
     res.status(StatusCodes.OK).json({
         message: "Logged out successfully.",
     });

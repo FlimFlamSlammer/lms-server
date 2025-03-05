@@ -36,13 +36,24 @@ class AuthService {
         return authToken;
     }
 
-    async verifyAuthToken(authToken: string) {
-        if (!authToken) {
+    async verifyAuthToken(bearerAuthToken: string) {
+        if (!bearerAuthToken) {
             throw createErrorWithMessage(
                 StatusCodes.UNAUTHORIZED,
                 "Auth token invalid!"
             );
         }
+
+        const tokens = bearerAuthToken.split(" ");
+
+        if (tokens.length !== 2) {
+            throw createErrorWithMessage(
+                StatusCodes.UNAUTHORIZED,
+                "Auth token invalid!"
+            );
+        }
+
+        const authToken = tokens[1];
 
         try {
             const userId = (
