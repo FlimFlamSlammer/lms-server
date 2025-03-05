@@ -7,6 +7,7 @@ import { setupSubjectsRouter } from "./subjects/router";
 import { setupClassesRouter } from "./classes/router";
 import path from "path";
 import fs from "fs";
+import cors from "cors";
 import { setupUploadRouter } from "./file/router";
 import { setupAssignmentsRouter } from "./assignments/router";
 
@@ -18,10 +19,14 @@ const UPLOAD_PATH = path.resolve("data");
 if (!fs.existsSync(UPLOAD_PATH)) {
     fs.mkdirSync(UPLOAD_PATH);
 }
-
+app.use(
+    cors({
+        credentials: true,
+        origin: process.env.APP_URL || "",
+    })
+);
 app.use(express.json());
 app.use(cookieParser());
-
 const baseRouter = express.Router();
 
 setupAuthRouter(baseRouter);
