@@ -33,7 +33,7 @@ class AuthService {
             }
         );
 
-        return authToken;
+        return { token: authToken, user };
     }
 
     async verifyAuthToken(bearerAuthToken: string) {

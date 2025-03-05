@@ -16,11 +16,17 @@ export const loginHandler = withValidation(
     },
     asyncMiddleware(async (req, res, next) => {
         const data = req.body as z.infer<typeof loginBodySchema>;
-        const authToken = await authService.login(data.email, data.password);
+        const { token, user } = await authService.login(
+            data.email,
+            data.password
+        );
 
         res.status(StatusCodes.OK).json({
             message: "Logged in successfully.",
-            data: authToken,
+            data: {
+                token,
+                user,
+            },
         });
     })
 );
