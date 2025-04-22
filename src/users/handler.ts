@@ -1,7 +1,7 @@
 import { z } from "zod";
 import {
     listQuerySchema,
-    stringDateSchema,
+    stringDateTimeSchema,
     withValidation,
 } from "~/validation";
 import { userService } from "./service";
@@ -29,7 +29,7 @@ const baseUserDataSchema = z.object({
     profileImage: z.string().optional(),
 });
 const studentDataSchema = z.object({
-    birthDate: stringDateSchema,
+    birthDate: stringDateTimeSchema,
     nis: z
         .string()
         .length(10, { message: "Invalid NISN" })
@@ -53,7 +53,7 @@ const createUserDataSchema = baseUserDataSchema.omit({ status: true });
 const createUserBodySchema = z
     .object({
         userData: createUserDataSchema,
-        roleData: z.union([studentDataSchema, teacherDataSchema]).optional(),
+        roleData: z.any(),
     })
     .superRefine((data, ctx) => {
         if (data.userData.role === "student") {
@@ -61,15 +61,16 @@ const createUserBodySchema = z
             console.log(result.error?.issues);
             if (!result.success) {
                 result.error.issues.forEach((issue) => {
+                    issue.path = ["roleData", ...issue.path];
                     ctx.addIssue(issue);
                 });
             }
         }
-
         if (data.userData.role === "teacher") {
             const result = teacherDataSchema.safeParse(data.roleData);
             if (!result.success) {
                 result.error.issues.forEach((issue) => {
+                    issue.path = ["roleData", ...issue.path];
                     ctx.addIssue(issue);
                 });
             }
