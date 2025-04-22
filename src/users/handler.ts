@@ -12,28 +12,33 @@ import { idParamsSchema } from "~/validation";
 import { asyncMiddleware } from "~/async-middleware";
 
 // base schemas
+const phoneNumberSchema = z
+    .string()
+    .regex(
+        /^(0|62|\+62)(8[1-35-9]\d{7,10}|2[124]\d{7,8}|619\d{8}|2(?:1(?:14|500)|2\d{3})\d{3}|61\d{5,8}|(?:2(?:[35][1-4]|6[0-8]|7[1-6]|8\d|9[1-8])|3(?:1|[25][1-8]|3[1-68]|4[1-3]|6[1-3568]|7[0-469]|8\d)|4(?:0[1-589]|1[01347-9]|2[0-36-8]|3[0-24-68]|43|5[1-378]|6[1-5]|7[134]|8[1245])|5(?:1[1-35-9]|2[25-8]|3[124-9]|4[1-3589]|5[1-46]|6[1-8])|6(?:[25]\d|3[1-69]|4[1-6])|7(?:02|[125][1-9]|[36]\d|4[1-8]|7[0-36-9])|9(?:0[12]|1[013-8]|2[0-479]|5[125-8]|6[23679]|7[159]|8[01346]))\d{5,8})/,
+        { message: "Invalid phone number" }
+    );
+
 const baseUserDataSchema = z.object({
     name: z.string(),
     email: z.string().email(),
     password: z.string(),
-    role: z.enum(validUserRoles),
+    role: z.enum(validUserRoles, { message: "Required" }),
     status: z.enum(validStatuses),
-    phoneNumber: z
-        .string()
-        .regex(
-            /^(0|62|\+62)(8[1-35-9]\d{7,10}|2[124]\d{7,8}|619\d{8}|2(?:1(?:14|500)|2\d{3})\d{3}|61\d{5,8}|(?:2(?:[35][1-4]|6[0-8]|7[1-6]|8\d|9[1-8])|3(?:1|[25][1-8]|3[1-68]|4[1-3]|6[1-3568]|7[0-469]|8\d)|4(?:0[1-589]|1[01347-9]|2[0-36-8]|3[0-24-68]|43|5[1-378]|6[1-5]|7[134]|8[1245])|5(?:1[1-35-9]|2[25-8]|3[124-9]|4[1-3589]|5[1-46]|6[1-8])|6(?:[25]\d|3[1-69]|4[1-6])|7(?:02|[125][1-9]|[36]\d|4[1-8]|7[0-36-9])|9(?:0[12]|1[013-8]|2[0-479]|5[125-8]|6[23679]|7[159]|8[01346]))\d{5,8})/
-        )
-        .optional(),
+    phoneNumber: phoneNumberSchema.optional(),
     profileImage: z.string().optional(),
 });
 const studentDataSchema = z.object({
     birthDate: stringDateSchema,
-    nis: z.string(),
+    nis: z
+        .string()
+        .length(10, { message: "Invalid NISN" })
+        .regex(/^[0-9]*$/, { message: "NISN may only contain numbers" }),
     description: z.string().optional(),
     fatherName: z.string().optional(),
     motherName: z.string().optional(),
     guardianName: z.string().optional(),
-    contactPhoneNumber: z.string(),
+    contactPhoneNumber: phoneNumberSchema,
 });
 const teacherDataSchema = z.object({
     expertise: z.string().optional(),
@@ -45,10 +50,31 @@ const teacherDataSchema = z.object({
 });
 
 const createUserDataSchema = baseUserDataSchema.omit({ status: true });
-const createUserBodySchema = z.object({
-    userData: createUserDataSchema,
-    roleData: z.union([studentDataSchema, teacherDataSchema]).optional(),
-});
+const createUserBodySchema = z
+    .object({
+        userData: createUserDataSchema,
+        roleData: z.union([studentDataSchema, teacherDataSchema]).optional(),
+    })
+    .superRefine((data, ctx) => {
+        if (data.userData.role === "student") {
+            const result = studentDataSchema.safeParse(data.roleData);
+            console.log(result.error?.issues);
+            if (!result.success) {
+                result.error.issues.forEach((issue) => {
+                    ctx.addIssue(issue);
+                });
+            }
+        }
+
+        if (data.userData.role === "teacher") {
+            const result = teacherDataSchema.safeParse(data.roleData);
+            if (!result.success) {
+                result.error.issues.forEach((issue) => {
+                    ctx.addIssue(issue);
+                });
+            }
+        }
+    });
 
 export const createUserHandler = withValidation(
     {
@@ -56,6 +82,7 @@ export const createUserHandler = withValidation(
     },
     asyncMiddleware(async (req, res, next) => {
         const data = req.body as z.infer<typeof createUserBodySchema>;
+
         const created = await userService.create(data.userData, data.roleData);
         res.status(StatusCodes.OK).json({
             data: created,
