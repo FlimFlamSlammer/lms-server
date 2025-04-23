@@ -1,9 +1,5 @@
 import { z } from "zod";
-import {
-    listQuerySchema,
-    stringDateTimeSchema,
-    withValidation,
-} from "~/validation";
+import { listQuerySchema, withValidation } from "~/validation";
 import { userService } from "./service";
 import { StatusCodes } from "http-status-codes";
 import { validUserRoles } from "./types";
@@ -29,7 +25,7 @@ const baseUserDataSchema = z.object({
     profileImage: z.string().optional(),
 });
 const studentDataSchema = z.object({
-    birthDate: stringDateTimeSchema,
+    birthDate: z.coerce.date(),
     nis: z
         .string()
         .length(10, { message: "Invalid NISN" })

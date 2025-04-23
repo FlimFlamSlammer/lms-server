@@ -1,18 +1,11 @@
 import { z } from "zod";
-import { validAssignmentStatuses } from "./types";
-import {
-    idParamsSchema,
-    listQuerySchema,
-    withValidation,
-    stringDateTimeSchema,
-} from "~/validation";
+import { idParamsSchema, withValidation } from "~/validation";
 import { asyncMiddleware } from "~/async-middleware";
 import { assignmentService } from "./service";
 import { StatusCodes } from "http-status-codes";
 import { User } from "~/users/types";
 import { createErrorWithMessage } from "~/error";
 import { prismaInstance as prisma } from "~/prisma-client";
-import { validBoolStrings } from "~/types";
 import { fileExists } from "~/file/handler";
 import { getAssignmentsQuerySchema } from "./validation";
 
@@ -26,8 +19,8 @@ const assignmentIdParamsSchema = z.intersection(
 const mutateAssignmentSchema = z.object({
     title: z.string().min(1),
     attachmentPath: z.string().optional(),
-    startTime: stringDateTimeSchema,
-    endTime: stringDateTimeSchema,
+    startTime: z.coerce.date(),
+    endTime: z.coerce.date(),
     maxGrade: z.number().min(1),
 });
 
