@@ -13,6 +13,7 @@ export type User = {
     phoneNumber?: string;
     status: string;
     password: string;
+    needsPasswordChange: boolean;
     role: UserRole;
     profileImage?: string;
     roleData?: Student | Teacher;

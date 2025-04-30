@@ -14,16 +14,17 @@ datasource db {
 }
 
 model User {
-    id           String   @id @default(uuid())
-    name         String
-    email        String   @unique
-    phoneNumber  String?
-    status       String
-    password     String
-    role         String
-    profileImage String?
-    teacher      Teacher?
-    student      Student?
+    id                  String   @id @default(uuid())
+    name                String
+    email               String   @unique
+    phoneNumber         String?
+    status              String
+    password            String
+    needsPasswordChange Boolean  @default(false)
+    role                String
+    profileImage        String?
+    teacher             Teacher?
+    student             Student?
 }
 
 model Teacher {

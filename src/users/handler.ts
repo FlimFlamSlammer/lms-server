@@ -19,6 +19,7 @@ const baseUserDataSchema = z.object({
     name: z.string(),
     email: z.string().email(),
     password: z.string(),
+    needsPasswordChange: z.boolean(),
     role: z.enum(validUserRoles, { message: "Required" }),
     status: z.enum(validStatuses),
     phoneNumber: phoneNumberSchema.optional(),
@@ -117,8 +118,10 @@ export const getUserHandler = withValidation(
 
 const updateUserDataSchema = baseUserDataSchema.omit({ role: true });
 const updateUserBodySchema = z.object({
-    userData: updateUserDataSchema,
-    roleData: z.union([studentDataSchema, teacherDataSchema]).optional(),
+    userData: updateUserDataSchema.partial(),
+    roleData: z
+        .union([studentDataSchema.partial(), teacherDataSchema.partial()])
+        .optional(),
 });
 export const updateUserHandler = withValidation(
     {
