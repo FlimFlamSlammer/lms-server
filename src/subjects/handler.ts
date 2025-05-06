@@ -55,10 +55,9 @@ export const getSubjectsHandler = withValidation(
     asyncMiddleware(async (req, res, next) => {
         const query = req.query as unknown as z.infer<typeof listQuerySchema>;
 
-        const { data, total } = await subjectService.getAll(query, req.user);
+        const data = await subjectService.getAll(query, req.user);
         res.status(StatusCodes.OK).json({
             data,
-            total,
         });
     })
 );

@@ -96,9 +96,9 @@ export const getUsersHandler = withValidation(
     asyncMiddleware(async (req, res, next) => {
         const query = req.query as unknown as z.infer<typeof listQuerySchema>;
 
-        const users = await userService.getAll(query);
+        const data = await userService.getAll(query);
         res.status(StatusCodes.OK).json({
-            data: users,
+            data,
         });
     })
 );
