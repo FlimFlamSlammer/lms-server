@@ -1,3 +1,5 @@
+import { Status } from "~/types";
+
 export const validUserRoles = [
     "student",
     "teacher",
@@ -11,7 +13,7 @@ export type User = {
     id: string;
     email: string;
     phoneNumber?: string;
-    status: string;
+    status: Status;
     password: string;
     needsPasswordChange: boolean;
     role: UserRole;

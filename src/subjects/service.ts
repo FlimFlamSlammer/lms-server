@@ -128,7 +128,7 @@ class SubjectService {
 
         const total = await prisma.subject.count({ where });
 
-        return { data: subjects, total };
+        return { subjects, total };
     }
 
     async getById(id: string) {

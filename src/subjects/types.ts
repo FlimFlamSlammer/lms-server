@@ -1,4 +1,4 @@
-import { ListParams, Status } from "~/types";
+import { Status } from "~/types";
 
 export type Subject = {
     id: string;
