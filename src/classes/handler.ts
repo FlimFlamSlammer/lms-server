@@ -53,10 +53,9 @@ export const getClassesHandler = withValidation(
     asyncMiddleware(async (req, res, next) => {
         const query = req.query as unknown as z.infer<typeof listQuerySchema>;
 
-        const { data, total } = await classService.getAll(query);
+        const data = await classService.getAll(query);
         res.status(StatusCodes.OK).json({
             data,
-            total,
         });
     })
 );
