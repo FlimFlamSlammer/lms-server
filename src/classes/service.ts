@@ -68,7 +68,7 @@ class ClassService {
 
         const total = await prisma.class.count({ where });
 
-        return { data: classes, total };
+        return { classes, total };
     }
 
     async getById(id: string) {

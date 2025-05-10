@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { Status } from "~/types";
 
 export const validUserRoles = [
@@ -29,6 +30,8 @@ export type Student = {
     motherName?: string;
     guardianName?: string;
     contactPhoneNumber: string;
+    classes?: Prisma.ClassCreateNestedManyWithoutStudentsInput;
+    assignments?: Prisma.SubmissionCreateNestedManyWithoutStudentInput;
 };
 export type Teacher = {
     id: string;
@@ -38,6 +41,7 @@ export type Teacher = {
     masterDegree?: string;
     doctorateDegree?: string;
     description?: string;
+    subjects?: Prisma.SubjectCreateNestedManyWithoutTeachersInput;
 };
 
 export type CreateUserDTO = Omit<User, "status" | "id">;

@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { Status } from "~/types";
 
 export type Subject = {
@@ -7,6 +8,8 @@ export type Subject = {
     startYear: number;
     endYear: number;
     status: Status;
+    classes?: Prisma.ClassCreateNestedManyWithoutSubjectsInput;
+    teachers?: Prisma.TeacherCreateNestedManyWithoutSubjectsInput;
 };
 
 export type CreateSubjectDTO = Omit<Subject, "id" | "status">;
