@@ -103,6 +103,34 @@ export const getUsersHandler = withValidation(
     })
 );
 
+export const getStudentsHandler = withValidation(
+    {
+        querySchema: listQuerySchema,
+    },
+    asyncMiddleware(async (req, res, next) => {
+        const query = req.query as unknown as z.infer<typeof listQuerySchema>;
+
+        const data = await userService.getAllStudents(query);
+        res.status(StatusCodes.OK).json({
+            data,
+        });
+    })
+);
+
+export const getTeachersHandler = withValidation(
+    {
+        querySchema: listQuerySchema,
+    },
+    asyncMiddleware(async (req, res, next) => {
+        const query = req.query as unknown as z.infer<typeof listQuerySchema>;
+
+        const data = await userService.getAllTeachers(query);
+        res.status(StatusCodes.OK).json({
+            data,
+        });
+    })
+);
+
 export const getUserHandler = withValidation(
     {
         paramsSchema: idParamsSchema,

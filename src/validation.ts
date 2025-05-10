@@ -58,8 +58,8 @@ export const idParamsSchema = z.object({
 });
 
 export const listQuerySchema = z.object({
-    page: z.coerce.number().int().min(1).optional().default(1),
-    size: z.coerce.number().int().min(1).optional().default(10),
+    page: z.coerce.number().int().min(1).default(1),
+    size: z.coerce.number().int().min(1).default(10),
     mode: z.enum(["all", "pagination"]).optional().default("pagination"),
     search: z.string().optional(),
     status: z

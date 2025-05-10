@@ -117,6 +117,58 @@ class UserService {
         return { users, total };
     }
 
+    async getAllStudents({ page, search, size, mode, status }: ListParams) {
+        const where = {
+            status: status !== "all" ? status : undefined,
+            name: search
+                ? {
+                      contains: search,
+                  }
+                : undefined,
+            role: "student",
+        };
+
+        const users = (await prisma.user.findMany({
+            ...(mode === "pagination"
+                ? {
+                      take: size,
+                      skip: (page - 1) * size,
+                  }
+                : {}),
+            where,
+        })) as User[];
+
+        const total = await prisma.user.count({ where });
+
+        return { users, total };
+    }
+
+    async getAllTeachers({ page, search, size, mode, status }: ListParams) {
+        const where = {
+            status: status !== "all" ? status : undefined,
+            name: search
+                ? {
+                      contains: search,
+                  }
+                : undefined,
+            role: "teacher",
+        };
+
+        const users = (await prisma.user.findMany({
+            ...(mode === "pagination"
+                ? {
+                      take: size,
+                      skip: (page - 1) * size,
+                  }
+                : {}),
+            where,
+        })) as User[];
+
+        const total = await prisma.user.count({ where });
+
+        return { users, total };
+    }
+
     async create(
         userData: CreateUserDTO,
         roleData: CreateStudentDTO | CreateTeacherDTO | null = null
@@ -199,7 +251,7 @@ class UserService {
                         id,
                     },
                     data: {
-                        ...roleData,
+                        ...(roleData as UpdateTeacherDTO),
                     },
                 });
             } else if (user.role == "student") {
@@ -208,7 +260,7 @@ class UserService {
                         id,
                     },
                     data: {
-                        ...roleData,
+                        ...(roleData as UpdateStudentDTO),
                     },
                 });
             }

@@ -6,6 +6,8 @@ import {
     updateUserHandler,
     activateUserHandler,
     deactivateUserHandler,
+    getStudentsHandler,
+    getTeachersHandler,
 } from "./handler";
 import { SetupRouter } from "~/router";
 import { authMiddleware } from "~/auth/middleware";
@@ -23,6 +25,8 @@ export const setupUsersRouter: SetupRouter = (router) => {
 
     usersRouter.get("/:id", getUserHandler);
     usersRouter.get("/", getUsersHandler);
+    usersRouter.get("/students", getStudentsHandler);
+    usersRouter.get("/teachers", getTeachersHandler);
 
     router.use("/users", usersRouter);
 };
