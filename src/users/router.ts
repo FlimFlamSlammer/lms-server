@@ -23,10 +23,10 @@ export const setupUsersRouter: SetupRouter = (router) => {
     usersRouter.patch("/:id/activate", activateUserHandler);
     usersRouter.patch("/:id/deactivate", deactivateUserHandler);
 
-    usersRouter.get("/:id", getUserHandler);
-    usersRouter.get("/", getUsersHandler);
     usersRouter.get("/students", getStudentsHandler);
     usersRouter.get("/teachers", getTeachersHandler);
+    usersRouter.get("/:id", getUserHandler);
+    usersRouter.get("/", getUsersHandler);
 
     router.use("/users", usersRouter);
 };
