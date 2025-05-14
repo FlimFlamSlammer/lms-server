@@ -77,7 +77,11 @@ class ClassService {
                 id,
             },
             include: {
-                students: true,
+                students: {
+                    include: {
+                        user: true,
+                    },
+                },
                 subjects: true,
             },
         })) as Class | null;
