@@ -104,6 +104,20 @@ export const deactivateClassHandler = withValidation(
     })
 );
 
+export const getStudentsNotInClassHandler = withValidation(
+    {
+        paramsSchema: idParamsSchema,
+    },
+    asyncMiddleware(async (req, res, next) => {
+        const id = req.params.id;
+
+        const data = await classService.getStudentsNotInClass(id);
+        res.status(StatusCodes.OK).json({
+            data,
+        });
+    })
+);
+
 const mutateStudentsBodySchema = z.object({
     studentIds: z.array(z.string()),
 });

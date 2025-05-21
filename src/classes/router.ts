@@ -7,6 +7,7 @@ import {
     deactivateClassHandler,
     getClassHandler,
     getClassesHandler,
+    getStudentsNotInClassHandler,
     removeStudentsHandler,
     removeSubjectsHandler,
     updateClassHandler,
@@ -38,6 +39,10 @@ export const setupClassesRouter: SetupRouter = (router) => {
 
     classesRouter.patch("/:id/add-students", addStudentsHandler);
     classesRouter.patch("/:id/remove-students", removeStudentsHandler);
+    classesRouter.get(
+        "/:id/students-not-in-class",
+        getStudentsNotInClassHandler
+    );
 
     classesRouter.patch("/:id/add-subjects", addSubjectsHandler);
     classesRouter.patch("/:id/remove-subjects", removeSubjectsHandler);

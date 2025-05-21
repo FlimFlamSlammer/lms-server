@@ -10,6 +10,7 @@ import {
 import { ListParams } from "~/types";
 import { createErrorWithMessage } from "~/error";
 import { StatusCodes } from "http-status-codes";
+import { Student } from "@prisma/client";
 const prisma = prismaInstance;
 
 class ClassService {
@@ -85,6 +86,21 @@ class ClassService {
                 subjects: true,
             },
         })) as Class | null;
+    }
+
+    async getStudentsNotInClass(id: string) {
+        return (await prisma.student.findMany({
+            where: {
+                classes: {
+                    none: {
+                        id,
+                    },
+                },
+            },
+            include: {
+                user: true,
+            },
+        })) as Student[];
     }
 
     async addStudents(id: string, data: MutateStudentsDTO) {
