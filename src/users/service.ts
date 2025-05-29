@@ -94,7 +94,7 @@ class UserService {
     }
 
     async getAll(query: ListParams) {
-        return await listQuery({
+        return await listQuery<User[]>({
             query,
             searchKey: "name",
             model: "User",

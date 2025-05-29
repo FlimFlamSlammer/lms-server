@@ -131,7 +131,7 @@ class AssignmentService {
             };
         }
 
-        return await listQuery({
+        return await listQuery<Assignment[]>({
             query: { page, size, mode, status, search },
             where,
             model: "Assignment",
