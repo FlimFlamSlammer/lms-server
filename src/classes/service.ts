@@ -11,6 +11,7 @@ import { ListParams } from "~/types";
 import { createErrorWithMessage } from "~/error";
 import { StatusCodes } from "http-status-codes";
 import { Student } from "@prisma/client";
+import { User } from "~/users/types";
 const prisma = prismaInstance;
 
 class ClassService {
@@ -89,18 +90,39 @@ class ClassService {
     }
 
     async getStudentsNotInClass(id: string) {
-        return (await prisma.student.findMany({
+        return (await prisma.user.findMany({
             where: {
-                classes: {
-                    none: {
-                        id,
+                role: "student",
+                student: {
+                    classes: {
+                        none: {
+                            id,
+                        },
                     },
                 },
             },
             include: {
-                user: true,
+                student: true,
             },
-        })) as Student[];
+        })) as User[];
+    }
+
+    async getStudents(id: string) {
+        return (await prisma.user.findMany({
+            where: {
+                role: "student",
+                student: {
+                    classes: {
+                        some: {
+                            id,
+                        },
+                    },
+                },
+            },
+            include: {
+                student: true,
+            },
+        })) as User[];
     }
 
     async addStudents(id: string, data: MutateStudentsDTO) {
