@@ -11,6 +11,7 @@ import {
     removeStudentsHandler,
     removeCoursesHandler,
     updateClassHandler,
+    getStudentsHandler,
 } from "./handler";
 import { SetupRouter } from "~/router";
 import { authMiddleware } from "~/auth/middleware";
@@ -23,6 +24,7 @@ export const setupClassesRouter: SetupRouter = (router) => {
         authMiddleware(["student", "teacher", "admin", "superadmin"]),
         getClassHandler
     );
+    classesRouter.get("/:id/students", getStudentsHandler);
     classesRouter.get(
         "/",
         authMiddleware(["student", "teacher", "admin", "superadmin"]),

@@ -12,6 +12,7 @@ import { createErrorWithMessage } from "~/error";
 import { StatusCodes } from "http-status-codes";
 import { Student } from "@prisma/client";
 import { User } from "~/users/types";
+import { listQuery } from "~/list-query";
 const prisma = prismaInstance;
 
 class ClassService {
@@ -48,29 +49,12 @@ class ClassService {
         })) as Class;
     }
 
-    async getAll({ page, search, size, mode, status }: ListParams) {
-        const where = {
-            status: status !== "all" ? status : undefined,
-            name: search
-                ? {
-                      contains: search,
-                  }
-                : undefined,
-        };
-
-        const classes = (await prisma.class.findMany({
-            ...(mode === "pagination"
-                ? {
-                      take: size,
-                      skip: (page - 1) * size,
-                  }
-                : {}),
-            where,
-        })) as Class[];
-
-        const total = await prisma.class.count({ where });
-
-        return { classes, total };
+    async getAll(query: ListParams) {
+        return await listQuery<Class[]>({
+            query,
+            model: "Class",
+            searchKey: "name",
+        });
     }
 
     async getById(id: string) {
@@ -107,8 +91,9 @@ class ClassService {
         })) as User[];
     }
 
-    async getStudents(id: string) {
-        return (await prisma.user.findMany({
+    async getStudents(id: string, query: ListParams) {
+        return await listQuery<User[]>({
+            query,
             where: {
                 role: "student",
                 student: {
@@ -119,10 +104,9 @@ class ClassService {
                     },
                 },
             },
-            include: {
-                student: true,
-            },
-        })) as User[];
+            model: "User",
+            searchKey: "name",
+        });
     }
 
     async addStudents(id: string, data: MutateStudentsDTO) {
