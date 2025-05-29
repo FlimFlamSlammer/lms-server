@@ -15,6 +15,7 @@ import {
 } from "./types";
 import { StatusCodes } from "http-status-codes";
 import { ListParams } from "~/types";
+import { listQuery } from "~/list-query";
 
 const prisma = prismaInstance;
 
@@ -92,29 +93,12 @@ class UserService {
         return null;
     }
 
-    async getAll({ page, search, size, mode, status }: ListParams) {
-        const where = {
-            status: status !== "all" ? status : undefined,
-            name: search
-                ? {
-                      contains: search,
-                  }
-                : undefined,
-        };
-
-        const users = (await prisma.user.findMany({
-            ...(mode === "pagination"
-                ? {
-                      take: size,
-                      skip: (page - 1) * size,
-                  }
-                : {}),
-            where,
-        })) as User[];
-
-        const total = await prisma.user.count({ where });
-
-        return { users, total };
+    async getAll(query: ListParams) {
+        return await listQuery({
+            query,
+            searchKey: "name",
+            model: "User",
+        });
     }
 
     async getAllStudents({ page, search, size, mode, status }: ListParams) {

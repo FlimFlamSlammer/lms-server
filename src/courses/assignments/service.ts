@@ -14,6 +14,7 @@ import { nanoid } from "nanoid";
 import { courseService } from "../service";
 import { User } from "~/users/types";
 import { Submission } from "@prisma/client";
+import { listQuery } from "~/list-query";
 
 class AssignmentService {
     constructor() {}
@@ -82,14 +83,8 @@ class AssignmentService {
     ) {
         await courseService.validateCourse(courseId);
 
-        const where: any = {
+        const where: Record<string, any> = {
             courseId,
-            status: status !== "all" ? status : undefined,
-            title: search
-                ? {
-                      contains: search, // name LIKE `%${search}%`
-                  }
-                : undefined,
         };
 
         const now = new Date();
@@ -136,21 +131,12 @@ class AssignmentService {
             };
         }
 
-        console.log(now);
-
-        const assignments = (await prisma.assignment.findMany({
-            ...(mode === "pagination"
-                ? {
-                      take: size,
-                      skip: (page - 1) * size,
-                  }
-                : {}),
+        return await listQuery({
+            query: { page, size, mode, status, search },
             where,
-        })) as Assignment[];
-
-        const total = await prisma.assignment.count({ where });
-
-        return { data: assignments, total };
+            model: "Assignment",
+            searchKey: "title",
+        });
     }
 
     async getById(

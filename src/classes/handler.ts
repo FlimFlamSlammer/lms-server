@@ -118,6 +118,23 @@ export const getStudentsNotInClassHandler = withValidation(
     })
 );
 
+export const getStudentsHandler = withValidation(
+    {
+        paramsSchema: idParamsSchema,
+        querySchema: listQuerySchema,
+    },
+    asyncMiddleware(async (req, res, next) => {
+        const id = req.params.id;
+        const query = req.query as unknown as z.infer<typeof listQuerySchema>;
+
+        const students = await classService.getStudents(id, query);
+
+        res.status(StatusCodes.ACCEPTED).json({
+            data: students,
+        });
+    })
+);
+
 const mutateStudentsBodySchema = z.object({
     studentIds: z.array(z.string()),
 });

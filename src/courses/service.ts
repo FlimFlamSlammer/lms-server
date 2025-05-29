@@ -12,6 +12,7 @@ import { StatusCodes } from "http-status-codes";
 import { Teacher, User } from "~/users/types";
 import { ListParams } from "~/types";
 import { Class } from "~/classes/types";
+import { listQuery } from "~/list-query";
 const prisma = prismaInstance;
 
 class CourseService {
@@ -86,18 +87,8 @@ class CourseService {
         })) as Course;
     }
 
-    async getAll(
-        { page, search, size, mode, status }: ListParams,
-        user: User | null = null
-    ) {
-        const where: any = {
-            status: status !== "all" ? status : undefined,
-            name: search
-                ? {
-                      contains: search,
-                  }
-                : undefined,
-        };
+    async getAll(query: ListParams, user: User | null = null) {
+        const where: Record<string, any> = {};
 
         if (user?.role == "teacher") {
             where.teachers = {
@@ -117,19 +108,12 @@ class CourseService {
             };
         }
 
-        const courses = (await prisma.course.findMany({
-            ...(mode === "pagination"
-                ? {
-                      take: size,
-                      skip: (page - 1) * size,
-                  }
-                : {}),
+        return await listQuery<Course[]>({
+            query,
             where,
-        })) as Course[];
-
-        const total = await prisma.course.count({ where });
-
-        return { courses, total };
+            searchKey: "name",
+            model: "Course",
+        });
     }
 
     async getById(id: string) {
