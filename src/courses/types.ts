@@ -1,20 +1,20 @@
 import { Prisma } from "@prisma/client";
 import { Status } from "~/types";
 
-export type Subject = {
+export type Course = {
     id: string;
     name: string;
     grade: number;
     startYear: number;
     endYear: number;
     status: Status;
-    classes?: Prisma.ClassCreateNestedManyWithoutSubjectsInput;
-    teachers?: Prisma.TeacherCreateNestedManyWithoutSubjectsInput;
+    classes?: Prisma.ClassCreateNestedManyWithoutCoursesInput;
+    teachers?: Prisma.TeacherCreateNestedManyWithoutCoursesInput;
 };
 
-export type CreateSubjectDTO = Omit<Subject, "id" | "status">;
+export type CreateCourseDTO = Omit<Course, "id" | "status">;
 
-export type UpdateSubjectDTO = Partial<Omit<Subject, "id">>;
+export type UpdateCourseDTO = Partial<Omit<Course, "id">>;
 
 export type MutateTeachersDTO = {
     teacherIds: string[];

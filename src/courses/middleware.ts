@@ -1,17 +1,17 @@
 import { asyncMiddleware } from "~/async-middleware";
-import { subjectService } from "./service";
+import { courseService } from "./service";
 import { idParamsSchema, withValidation } from "~/validation";
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 
-const subjectAuthMiddlewareSchema = z.object({
+const courseAuthMiddlewareSchema = z.object({
     id: z.string().optional(),
-    subjectId: z.string().optional(),
+    courseId: z.string().optional(),
 });
 
-export const subjectAccessMiddleware = withValidation(
+export const courseAccessMiddleware = withValidation(
     {
-        paramsSchema: subjectAuthMiddlewareSchema,
+        paramsSchema: courseAuthMiddlewareSchema,
     },
     asyncMiddleware(async (req, res, next) => {
         if (!req.user) {
@@ -21,13 +21,13 @@ export const subjectAccessMiddleware = withValidation(
             return;
         }
 
-        let id = req.params.subjectId || req.params.id;
+        let id = req.params.courseId || req.params.id;
 
-        if (await subjectService.userInSubject(id, req.user)) {
+        if (await courseService.userInCourse(id, req.user)) {
             next();
         } else {
             res.status(StatusCodes.UNAUTHORIZED).json({
-                message: "Currently logged in user cannot access this subject.",
+                message: "Currently logged in user cannot access this course.",
             });
         }
     })

@@ -1,5 +1,5 @@
 import { prismaInstance as prisma } from "~/prisma-client";
-import { Assignment, AssignmentListParams } from "~/subjects/assignments/types";
+import { Assignment, AssignmentListParams } from "~/courses/assignments/types";
 import { User } from "~/users/types";
 
 class AssignmentService {
@@ -28,7 +28,7 @@ class AssignmentService {
         };
 
         if (user.role == "student") {
-            where.subject = {
+            where.course = {
                 classes: {
                     some: {
                         students: {
@@ -40,7 +40,7 @@ class AssignmentService {
                 },
             };
         } else if (user.role == "teacher") {
-            where.subject = {
+            where.course = {
                 teachers: {
                     some: {
                         id: user.id,

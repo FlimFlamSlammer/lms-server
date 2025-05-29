@@ -36,7 +36,7 @@ model Teacher {
     doctorateDegree String?
     description     String?
     nig             String
-    subjects        Subject[]
+    courses         Course[]
     assignments     Assignment[]
 }
 
@@ -54,7 +54,7 @@ model Student {
     assignments        Submission[]
 }
 
-model Subject {
+model Course {
     id          String       @id @default(uuid())
     name        String
     grade       Int
@@ -64,13 +64,15 @@ model Subject {
     teachers    Teacher[]
     classes     Class[]
     submissions Assignment[]
+
+    @@map("Subject")
 }
 
 model Class {
     id       String    @id @default(uuid())
     name     String
     status   String
-    subjects Subject[]
+    courses  Course[]
     students Student[]
 }
 
@@ -79,8 +81,8 @@ model Assignment {
     title          String
     teacher        Teacher      @relation(fields: [teacherId], references: [id])
     teacherId      String
-    subject        Subject      @relation(fields: [subjectId], references: [id])
-    subjectId      String
+    course         Course       @relation(fields: [courseId], references: [id])
+    courseId       String
     attachmentPath String?
     status         String
     startTime      DateTime

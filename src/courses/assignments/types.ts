@@ -7,7 +7,7 @@ export type Assignment = {
     id: string;
     title: string;
     teacherId: string;
-    subjectId: string;
+    courseId: string;
     attachmentPath?: string;
     status: AssignmentStatus;
     startTime: Date;

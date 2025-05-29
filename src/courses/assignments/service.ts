@@ -11,7 +11,7 @@ import {
     UpdateSubmissionDTO,
 } from "./types";
 import { nanoid } from "nanoid";
-import { subjectService } from "../service";
+import { courseService } from "../service";
 import { User } from "~/users/types";
 import { Submission } from "@prisma/client";
 
@@ -19,13 +19,13 @@ class AssignmentService {
     constructor() {}
 
     async validateAssignment(
-        subjectId: string,
+        courseId: string,
         id: string
     ): Promise<Assignment> {
-        await subjectService.validateSubject(subjectId);
+        await courseService.validateCourse(courseId);
         const assignment = (await prisma.assignment.findFirst({
             where: {
-                subjectId,
+                courseId,
                 id,
             },
         })) as Assignment;
@@ -50,11 +50,11 @@ class AssignmentService {
     }
 
     async update(
-        subjectId: string,
+        courseId: string,
         id: string,
         data: UpdateAssignmentDTO
     ): Promise<Assignment> {
-        await this.validateAssignment(subjectId, id);
+        await this.validateAssignment(courseId, id);
 
         return (await prisma.assignment.update({
             where: {
@@ -68,7 +68,7 @@ class AssignmentService {
     }
 
     async getAll(
-        subjectId: string,
+        courseId: string,
         {
             page,
             search,
@@ -80,10 +80,10 @@ class AssignmentService {
             started,
         }: AssignmentListParams
     ) {
-        await subjectService.validateSubject(subjectId);
+        await courseService.validateCourse(courseId);
 
         const where: any = {
-            subjectId,
+            courseId,
             status: status !== "all" ? status : undefined,
             title: search
                 ? {
@@ -154,20 +154,20 @@ class AssignmentService {
     }
 
     async getById(
-        subjectId: string,
+        courseId: string,
         id: string,
         studentId: string | null = null
     ): Promise<Assignment | null> {
         const assignment = (await prisma.assignment.findFirst({
             where: {
                 id,
-                subjectId,
+                courseId,
             },
         })) as Assignment | null;
 
         if (assignment) {
             assignment.submissions = await this.getSubmissions(
-                subjectId,
+                courseId,
                 id,
                 studentId
             );
@@ -176,30 +176,30 @@ class AssignmentService {
         return assignment;
     }
 
-    async started(subjectId: string, id: string): Promise<Boolean> {
-        const assignment = await this.validateAssignment(subjectId, id);
+    async started(courseId: string, id: string): Promise<Boolean> {
+        const assignment = await this.validateAssignment(courseId, id);
 
         const curDate = new Date();
 
         return curDate >= assignment.startTime && assignment.status == "posted";
     }
 
-    async canSubmit(subjectId: string, id: string): Promise<Boolean> {
-        const assignment = await this.validateAssignment(subjectId, id);
+    async canSubmit(courseId: string, id: string): Promise<Boolean> {
+        const assignment = await this.validateAssignment(courseId, id);
 
         const curDate = new Date();
 
         return (
-            (await this.started(subjectId, id)) && curDate < assignment.endTime
+            (await this.started(courseId, id)) && curDate < assignment.endTime
         );
     }
 
     async getSubmissions(
-        subjectId: string,
+        courseId: string,
         id: string,
         studentId: string | null
     ) {
-        await this.validateAssignment(subjectId, id);
+        await this.validateAssignment(courseId, id);
 
         return (await prisma.submission.findMany({
             where: {
@@ -210,12 +210,12 @@ class AssignmentService {
     }
 
     async submit(
-        subjectId: string,
+        courseId: string,
         id: string,
         data: SubmitAssignmentDTO
     ): Promise<Submission> {
-        await this.validateAssignment(subjectId, id);
-        if (!(await this.canSubmit(subjectId, id))) {
+        await this.validateAssignment(courseId, id);
+        if (!(await this.canSubmit(courseId, id))) {
             throw createErrorWithMessage(
                 StatusCodes.FORBIDDEN,
                 "Assignment hasn't started yet!"
@@ -223,7 +223,7 @@ class AssignmentService {
         }
 
         const submission = await this.getSubmissions(
-            subjectId,
+            courseId,
             id,
             data.studentId
         );
@@ -244,20 +244,20 @@ class AssignmentService {
     }
 
     async grade(
-        subjectId: string,
+        courseId: string,
         id: string,
         studentId: string,
         data: UpdateSubmissionDTO
     ): Promise<Submission> {
-        await this.validateAssignment(subjectId, id);
-        if (!(await this.canSubmit(subjectId, id))) {
+        await this.validateAssignment(courseId, id);
+        if (!(await this.canSubmit(courseId, id))) {
             throw createErrorWithMessage(
                 StatusCodes.FORBIDDEN,
                 "Assignment hasn't started yet!"
             );
         }
 
-        const submission = await this.getSubmissions(subjectId, id, studentId);
+        const submission = await this.getSubmissions(courseId, id, studentId);
 
         if (!submission.length) {
             throw createErrorWithMessage(

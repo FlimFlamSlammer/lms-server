@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { asyncMiddleware } from "~/async-middleware";
-import { getAssignmentsQuerySchema } from "~/subjects/assignments/validation";
+import { getAssignmentsQuerySchema } from "~/courses/assignments/validation";
 import { withValidation } from "~/validation";
 import { assignmentService } from "./service";
 import { StatusCodes } from "http-status-codes";

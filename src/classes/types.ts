@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { Subject } from "~/subjects/types";
+import { Course } from "~/courses/types";
 import { Status } from "~/types";
 import { Student } from "~/users/types";
 
@@ -8,7 +8,7 @@ export type Class = {
     name: string;
     status: Status;
     students?: Prisma.StudentCreateNestedManyWithoutClassesInput;
-    subjects?: Prisma.SubjectCreateNestedManyWithoutClassesInput;
+    courses?: Prisma.CourseCreateNestedManyWithoutClassesInput;
 };
 
 export type CreateClassDTO = Omit<Class, "id" | "status" | "students">;
@@ -19,6 +19,6 @@ export type MutateStudentsDTO = {
     studentIds: string[];
 };
 
-export type MutateSubjectsDTO = {
-    subjectIds: string[];
+export type MutateCoursesDTO = {
+    courseIds: string[];
 };

@@ -3,7 +3,7 @@ import { errorMiddleware } from "./error";
 import cookieParser from "cookie-parser";
 import { setupAuthRouter } from "./auth/router";
 import { setupUsersRouter } from "./users/router";
-import { setupSubjectsRouter } from "./subjects/router";
+import { setupCoursesRouter } from "./courses/router";
 import { setupClassesRouter } from "./classes/router";
 import path from "path";
 import fs from "fs";
@@ -32,7 +32,7 @@ const baseRouter = express.Router();
 setupAuthRouter(baseRouter);
 setupUsersRouter(baseRouter);
 setupClassesRouter(baseRouter);
-setupSubjectsRouter(baseRouter);
+setupCoursesRouter(baseRouter);
 setupUploadRouter(baseRouter);
 setupAssignmentsRouter(baseRouter);
 

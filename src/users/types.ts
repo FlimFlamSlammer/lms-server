@@ -41,7 +41,7 @@ export type Teacher = {
     masterDegree?: string;
     doctorateDegree?: string;
     description?: string;
-    subjects?: Prisma.SubjectCreateNestedManyWithoutTeachersInput;
+    courses?: Prisma.CourseCreateNestedManyWithoutTeachersInput;
 };
 
 export type CreateUserDTO = Omit<User, "status" | "id">;

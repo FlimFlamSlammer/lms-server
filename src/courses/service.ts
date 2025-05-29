@@ -1,22 +1,23 @@
 import { prismaInstance } from "~/prisma-client";
 import { nanoid } from "nanoid";
 import {
-    CreateSubjectDTO,
+    CreateCourseDTO,
     MutateClassesDTO,
     MutateTeachersDTO,
-    Subject,
-    UpdateSubjectDTO,
+    Course,
+    UpdateCourseDTO,
 } from "./types";
 import { createErrorWithMessage } from "~/error";
 import { StatusCodes } from "http-status-codes";
-import { User } from "~/users/types";
+import { Teacher, User } from "~/users/types";
 import { ListParams } from "~/types";
+import { Class } from "~/classes/types";
 const prisma = prismaInstance;
 
-class SubjectService {
+class CourseService {
     constructor() {}
 
-    async userInSubject(id: string, user: User) {
+    async userInCourse(id: string, user: User) {
         let where = {};
         if (user.role == "student") {
             where = {
@@ -41,29 +42,29 @@ class SubjectService {
             };
         }
 
-        const subject = await prisma.subject.findFirst({
+        const course = await prisma.course.findFirst({
             where: {
                 id,
                 ...where,
             },
         });
 
-        return subject != null;
+        return course != null;
     }
 
-    async validateSubject(id: string) {
-        const subject = await this.getById(id);
-        if (!subject) {
+    async validateCourse(id: string) {
+        const course = await this.getById(id);
+        if (!course) {
             throw createErrorWithMessage(
                 StatusCodes.NOT_FOUND,
-                "Subject not found!"
+                "Course not found!"
             );
         }
-        return subject;
+        return course;
     }
 
-    create(data: CreateSubjectDTO) {
-        return prisma.subject.create({
+    create(data: CreateCourseDTO) {
+        return prisma.course.create({
             data: {
                 id: nanoid(),
                 status: "active",
@@ -72,17 +73,17 @@ class SubjectService {
         });
     }
 
-    async update(id: string, data: UpdateSubjectDTO) {
-        this.validateSubject(id);
+    async update(id: string, data: UpdateCourseDTO) {
+        this.validateCourse(id);
 
-        return (await prisma.subject.update({
+        return (await prisma.course.update({
             where: {
                 id,
             },
             data: {
                 ...data,
             },
-        })) as Subject;
+        })) as Course;
     }
 
     async getAll(
@@ -116,7 +117,7 @@ class SubjectService {
             };
         }
 
-        const subjects = (await prisma.subject.findMany({
+        const courses = (await prisma.course.findMany({
             ...(mode === "pagination"
                 ? {
                       take: size,
@@ -124,27 +125,31 @@ class SubjectService {
                   }
                 : {}),
             where,
-        })) as Subject[];
+        })) as Course[];
 
-        const total = await prisma.subject.count({ where });
+        const total = await prisma.course.count({ where });
 
-        return { subjects, total };
+        return { courses, total };
     }
 
     async getById(id: string) {
-        return (await prisma.subject.findFirst({
+        return (await prisma.course.findFirst({
             where: {
                 id,
             },
             include: {
-                teachers: true,
+                teachers: {
+                    include: {
+                        user: true,
+                    },
+                },
                 classes: true,
             },
-        })) as Subject | null;
+        })) as Course | null;
     }
 
     async addTeachers(id: string, data: MutateTeachersDTO) {
-        this.validateSubject(id);
+        this.validateCourse(id);
 
         // check for invalid student ids
         const existingTeachers = await prisma.teacher.findMany({
@@ -169,7 +174,7 @@ class SubjectService {
         });
 
         // add the relations
-        await prisma.subject.update({
+        await prisma.course.update({
             where: { id },
             data: {
                 teachers: {
@@ -188,9 +193,9 @@ class SubjectService {
     }
 
     async removeTeachers(id: string, data: MutateTeachersDTO) {
-        this.validateSubject(id);
+        this.validateCourse(id);
 
-        await prisma.subject.update({
+        await prisma.course.update({
             where: { id },
             data: {
                 teachers: {
@@ -202,8 +207,35 @@ class SubjectService {
         });
     }
 
+    async getClassesNotInCourse(id: string) {
+        return (await prisma.class.findMany({
+            where: {
+                courses: {
+                    none: {
+                        id,
+                    },
+                },
+            },
+        })) as Class[];
+    }
+
+    async getTeachersNotInCourse(id: string) {
+        return (await prisma.teacher.findMany({
+            where: {
+                courses: {
+                    none: {
+                        id,
+                    },
+                },
+            },
+            include: {
+                user: true,
+            },
+        })) as Teacher[];
+    }
+
     async addClasses(id: string, data: MutateClassesDTO) {
-        this.validateSubject(id);
+        this.validateCourse(id);
 
         const existingClasses = await prisma.class.findMany({
             where: {
@@ -227,7 +259,7 @@ class SubjectService {
         });
 
         // add the relations
-        await prisma.subject.update({
+        await prisma.course.update({
             where: { id },
             data: {
                 classes: {
@@ -246,9 +278,9 @@ class SubjectService {
     }
 
     async removeClasses(id: string, data: MutateClassesDTO) {
-        this.validateSubject(id);
+        this.validateCourse(id);
 
-        await prisma.subject.update({
+        await prisma.course.update({
             where: { id },
             data: {
                 classes: {
@@ -261,4 +293,4 @@ class SubjectService {
     }
 }
 
-export const subjectService = new SubjectService();
+export const courseService = new CourseService();

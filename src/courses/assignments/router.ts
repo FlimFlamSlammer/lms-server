@@ -12,14 +12,14 @@ import {
     submitAssignmentHandler,
     updateAssignmentHandler,
 } from "./handler";
-import { subjectAccessMiddleware } from "../middleware";
+import { courseAccessMiddleware } from "../middleware";
 
 export const setupAssignmentsRouter: SetupRouter = (router) => {
     const assignmentsRouter = express.Router({
         mergeParams: true,
     });
 
-    assignmentsRouter.use(authMiddleware(), subjectAccessMiddleware);
+    assignmentsRouter.use(authMiddleware(), courseAccessMiddleware);
 
     assignmentsRouter.get("/:id", getAssignmentHandler);
     assignmentsRouter.get("/", getAssignmentsHandler);
@@ -48,5 +48,5 @@ export const setupAssignmentsRouter: SetupRouter = (router) => {
     assignmentsRouter.patch("/:id/post", postAssignmentHandler);
     assignmentsRouter.patch("/:id/cancel", cancelAssignmentHandler);
 
-    router.use("/:subjectId/assignments", assignmentsRouter);
+    router.use("/:courseId/assignments", assignmentsRouter);
 };

@@ -2,14 +2,14 @@ import express from "express";
 import {
     activateClassHandler,
     addStudentsHandler,
-    addSubjectsHandler,
+    addCoursesHandler,
     createClassHandler,
     deactivateClassHandler,
     getClassHandler,
     getClassesHandler,
     getStudentsNotInClassHandler,
     removeStudentsHandler,
-    removeSubjectsHandler,
+    removeCoursesHandler,
     updateClassHandler,
 } from "./handler";
 import { SetupRouter } from "~/router";
@@ -44,8 +44,8 @@ export const setupClassesRouter: SetupRouter = (router) => {
         getStudentsNotInClassHandler
     );
 
-    classesRouter.patch("/:id/add-subjects", addSubjectsHandler);
-    classesRouter.patch("/:id/remove-subjects", removeSubjectsHandler);
+    classesRouter.patch("/:id/add-courses", addCoursesHandler);
+    classesRouter.patch("/:id/remove-courses", removeCoursesHandler);
 
     router.use("/classes", classesRouter);
 };

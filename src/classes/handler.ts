@@ -162,44 +162,44 @@ export const removeStudentsHandler = withValidation(
     })
 );
 
-const mutateSubjectsBodySchema = z.object({
-    subjectIds: z.array(z.string()),
+const mutateCoursesBodySchema = z.object({
+    courseIds: z.array(z.string()),
 });
 
-export const addSubjectsHandler = withValidation(
+export const addCoursesHandler = withValidation(
     {
         paramsSchema: idParamsSchema,
-        bodySchema: mutateSubjectsBodySchema,
+        bodySchema: mutateCoursesBodySchema,
     },
     asyncMiddleware(async (req, res, next) => {
         const id = req.params.id;
-        const data = req.body as z.infer<typeof mutateSubjectsBodySchema>;
+        const data = req.body as z.infer<typeof mutateCoursesBodySchema>;
 
-        const missingSubjects = await classService.addSubjects(id, {
-            subjectIds: data.subjectIds,
+        const missingCourses = await classService.addCourses(id, {
+            courseIds: data.courseIds,
         });
 
         res.status(StatusCodes.OK).json({
-            message: "Subjects added successfully!",
-            missingSubjects:
-                missingSubjects.totalMissing > 0 ? missingSubjects : undefined,
+            message: "Courses added successfully!",
+            missingCourses:
+                missingCourses.totalMissing > 0 ? missingCourses : undefined,
         });
     })
 );
 
-export const removeSubjectsHandler = withValidation(
+export const removeCoursesHandler = withValidation(
     {
         paramsSchema: idParamsSchema,
-        bodySchema: mutateSubjectsBodySchema,
+        bodySchema: mutateCoursesBodySchema,
     },
     asyncMiddleware(async (req, res, next) => {
         const id = req.params.id;
-        const data = req.body as z.infer<typeof mutateSubjectsBodySchema>;
+        const data = req.body as z.infer<typeof mutateCoursesBodySchema>;
 
-        await classService.removeSubjects(id, { subjectIds: data.subjectIds });
+        await classService.removeCourses(id, { courseIds: data.courseIds });
 
         res.status(StatusCodes.OK).json({
-            message: "Subjects removed successfully!",
+            message: "Courses removed successfully!",
         });
     })
 );

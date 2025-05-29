@@ -9,11 +9,11 @@ import { prismaInstance as prisma } from "~/prisma-client";
 import { fileExists } from "~/file/handler";
 import { getAssignmentsQuerySchema } from "./validation";
 
-const subjectIdParamsSchema = z.object({ subjectId: z.string() });
+const courseIdParamsSchema = z.object({ courseId: z.string() });
 
 const assignmentIdParamsSchema = z.intersection(
     idParamsSchema,
-    subjectIdParamsSchema
+    courseIdParamsSchema
 );
 
 const mutateAssignmentSchema = z.object({
@@ -26,7 +26,7 @@ const mutateAssignmentSchema = z.object({
 
 export const createAssignmentHandler = withValidation(
     {
-        paramsSchema: subjectIdParamsSchema,
+        paramsSchema: courseIdParamsSchema,
         bodySchema: mutateAssignmentSchema,
     },
     asyncMiddleware(async (req, res) => {
@@ -34,7 +34,7 @@ export const createAssignmentHandler = withValidation(
         const user = req.user as User;
 
         const created = await assignmentService.create({
-            subjectId: req.params.subjectId,
+            courseId: req.params.courseId,
             teacherId: user.id,
             ...data,
         });
@@ -54,7 +54,7 @@ export const updateAssignmentHandler = withValidation(
     asyncMiddleware(async (req, res) => {
         const data = req.body as z.infer<typeof mutateAssignmentSchema>;
         const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
-        await assignmentService.update(params.subjectId, params.id, data);
+        await assignmentService.update(params.courseId, params.id, data);
 
         res.status(StatusCodes.OK).json({
             message: "Assignment updated successfully!",
@@ -64,11 +64,11 @@ export const updateAssignmentHandler = withValidation(
 
 export const getAssignmentsHandler = withValidation(
     {
-        paramsSchema: subjectIdParamsSchema,
+        paramsSchema: courseIdParamsSchema,
         querySchema: getAssignmentsQuerySchema,
     },
     asyncMiddleware(async (req, res, next) => {
-        const params = req.params as z.infer<typeof subjectIdParamsSchema>;
+        const params = req.params as z.infer<typeof courseIdParamsSchema>;
         const query = req.query as unknown as z.infer<
             typeof getAssignmentsQuerySchema
         >;
@@ -79,7 +79,7 @@ export const getAssignmentsHandler = withValidation(
         }
 
         const { data, total } = await assignmentService.getAll(
-            params.subjectId,
+            params.courseId,
             query
         );
 
@@ -97,14 +97,14 @@ export const getAssignmentHandler = withValidation(
     asyncMiddleware(async (req, res, next) => {
         const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
         const data = await assignmentService.getById(
-            params.subjectId,
+            params.courseId,
             params.id
         );
 
         const user = req.user;
         if (user && data && user.role == "student") {
             if (
-                !assignmentService.started(params.subjectId, params.id) ||
+                !assignmentService.started(params.courseId, params.id) ||
                 data.status != "posted"
             ) {
                 res.status(StatusCodes.NOT_FOUND).json({
@@ -112,10 +112,10 @@ export const getAssignmentHandler = withValidation(
                 });
             }
 
-            // check if the subject has a class that the student is enrolled in
-            const studentInSubject = prisma.subject.findFirst({
+            // check if the course has a class that the student is enrolled in
+            const studentInCourse = prisma.course.findFirst({
                 where: {
-                    id: params.subjectId,
+                    id: params.courseId,
                     classes: {
                         some: {
                             students: {
@@ -128,7 +128,7 @@ export const getAssignmentHandler = withValidation(
                 },
             });
 
-            if (!studentInSubject) {
+            if (!studentInCourse) {
                 res.status(StatusCodes.NOT_FOUND).json({
                     message: "Assignment not found!",
                 });
@@ -149,7 +149,7 @@ export const postAssignmentHandler = withValidation(
         const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
 
         const assignment = await assignmentService.getById(
-            params.subjectId,
+            params.courseId,
             params.id
         );
 
@@ -160,7 +160,7 @@ export const postAssignmentHandler = withValidation(
             );
         }
 
-        await assignmentService.update(params.subjectId, params.id, {
+        await assignmentService.update(params.courseId, params.id, {
             status: "posted",
         });
 
@@ -178,7 +178,7 @@ export const draftAssignmentHandler = withValidation(
         const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
 
         const assignment = await assignmentService.getById(
-            params.subjectId,
+            params.courseId,
             params.id
         );
 
@@ -189,14 +189,14 @@ export const draftAssignmentHandler = withValidation(
             );
         }
 
-        if (await assignmentService.started(params.subjectId, params.id)) {
+        if (await assignmentService.started(params.courseId, params.id)) {
             throw createErrorWithMessage(
                 StatusCodes.NOT_FOUND,
                 "Unable to draft assignment because it has already started!"
             );
         }
 
-        await assignmentService.update(params.subjectId, params.id, {
+        await assignmentService.update(params.courseId, params.id, {
             status: "draft",
         });
 
@@ -212,7 +212,7 @@ export const cancelAssignmentHandler = withValidation(
     },
     asyncMiddleware(async (req, res) => {
         const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
-        await assignmentService.update(params.subjectId, params.id, {
+        await assignmentService.update(params.courseId, params.id, {
             status: "canceled",
         });
 
@@ -242,7 +242,7 @@ export const submitAssignmentHandler = withValidation(
             return;
         }
 
-        await assignmentService.submit(params.subjectId, params.id, {
+        await assignmentService.submit(params.courseId, params.id, {
             attachmentPath: filePath,
             studentId: req.user.id,
         });
@@ -274,7 +274,7 @@ export const gradeAssignmentHandler = withValidation(
             typeof gradeAssignmentParamsSchema
         >;
         await assignmentService.grade(
-            params.subjectId,
+            params.courseId,
             params.id,
             params.studentId,
             req.body
