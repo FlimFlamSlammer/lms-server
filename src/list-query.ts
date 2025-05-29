@@ -10,26 +10,24 @@ export type ListQueryParams = {
     where?: Record<string, unknown>;
     searchKey?: string;
     statusKey?: string;
-    resultsKey?: string;
 };
 
-export const listQuery = async <T = unknown>({
+export const listQuery = async <T>({
     query: { search, mode, page, size, status },
     where = {},
     model,
     searchKey,
     statusKey = "status",
-    resultsKey = "data",
 }: ListQueryParams) => {
-    const baseWhere: Record<string, unknown> = { ...where };
+    const finalWhere: Record<string, unknown> = { ...where };
 
     if (searchKey && search) {
-        baseWhere[searchKey] = {
+        finalWhere[searchKey] = {
             contains: search,
         };
     }
 
-    baseWhere[statusKey] = status !== "all" ? status : undefined;
+    finalWhere[statusKey] = status !== "all" ? status : undefined;
 
     const table = prisma[model.toLowerCase() as any] as any;
 
@@ -40,13 +38,10 @@ export const listQuery = async <T = unknown>({
                   skip: (page - 1) * size,
               }
             : {}),
-        where: baseWhere,
+        where: finalWhere,
     })) as T;
 
-    const total = await table.count({ baseWhere });
+    const total = (await table.count({ where: finalWhere })) as number;
 
-    const res: Record<string, unknown> = { total };
-    res[resultsKey] = data;
-
-    return res;
+    return { data, total };
 };

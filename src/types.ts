@@ -9,5 +9,5 @@ export type ListParams = {
     size: number;
     mode: "pagination" | "all";
     search?: string;
-    status: Status | "all";
+    status: Status | "all" | string;
 };
