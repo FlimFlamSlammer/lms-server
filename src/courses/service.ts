@@ -240,7 +240,7 @@ class CourseService {
         return await listQuery<Class[]>({
             query,
             where: {
-                course: {
+                courses: {
                     some: {
                         id,
                     },
