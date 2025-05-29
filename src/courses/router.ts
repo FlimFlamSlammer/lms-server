@@ -5,9 +5,11 @@ import {
     addTeachersHandler,
     createCourseHandler,
     deactivateCourseHandler,
+    getClassesHandler,
     getClassesNotInCourseHandler,
     getCourseHandler,
     getCoursesHandler,
+    getTeachersHandler,
     getTeachersNotInCourseHandler,
     removeClassesHandler,
     removeTeachersHandler,
@@ -31,6 +33,9 @@ export const setupCoursesRouter: SetupRouter = (router) => {
     coursesRouter.get("/", getCoursesHandler);
 
     coursesRouter.use(authMiddleware(["admin", "superadmin"]));
+
+    coursesRouter.get("/:id/classes", getClassesHandler);
+    coursesRouter.get("/:id/teachers", getTeachersHandler);
 
     coursesRouter.get(
         "/:id/classes-not-in-course",

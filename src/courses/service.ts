@@ -132,6 +132,24 @@ class CourseService {
         })) as Course | null;
     }
 
+    async getTeachers(id: string, query: ListParams) {
+        return await listQuery<User[]>({
+            query,
+            where: {
+                role: "teacher",
+                teacher: {
+                    courses: {
+                        some: {
+                            id,
+                        },
+                    },
+                },
+            },
+            model: "User",
+            searchKey: "name",
+        });
+    }
+
     async addTeachers(id: string, data: MutateTeachersDTO) {
         this.validateCourse(id);
 
@@ -216,6 +234,21 @@ class CourseService {
                 user: true,
             },
         })) as Teacher[];
+    }
+
+    async getClasses(id: string, query: ListParams) {
+        return await listQuery<Class[]>({
+            query,
+            where: {
+                course: {
+                    some: {
+                        id,
+                    },
+                },
+            },
+            model: "Class",
+            searchKey: "name",
+        });
     }
 
     async addClasses(id: string, data: MutateClassesDTO) {

@@ -120,6 +120,19 @@ export const getTeachersNotInCourseHandler = withValidation(
     })
 );
 
+export const getTeachersHandler = withValidation(
+    {
+        paramsSchema: idParamsSchema,
+        querySchema: listQuerySchema,
+    },
+    asyncMiddleware(async (req, res, next) => {
+        const query = req.query as unknown as z.infer<typeof listQuerySchema>;
+        const data = await courseService.getTeachers(req.params.id, query);
+
+        res.status(StatusCodes.ACCEPTED).json(data);
+    })
+);
+
 const mutateTeachersBodySchema = z.object({
     teacherIds: z.array(z.string()),
 });
@@ -175,6 +188,19 @@ export const getClassesNotInCourseHandler = withValidation(
         res.status(StatusCodes.ACCEPTED).json({
             data: classes,
         });
+    })
+);
+
+export const getClassesHandler = withValidation(
+    {
+        paramsSchema: idParamsSchema,
+        querySchema: listQuerySchema,
+    },
+    asyncMiddleware(async (req, res, next) => {
+        const query = req.query as unknown as z.infer<typeof listQuerySchema>;
+        const data = await courseService.getClasses(req.params.id, query);
+
+        res.status(StatusCodes.ACCEPTED).json(data);
     })
 );
 
