@@ -1,6 +1,7 @@
 import { prismaInstance as prisma } from "~/prisma-client";
 import { Assignment, AssignmentListParams } from "~/courses/assignments/types";
 import { User } from "~/users/types";
+import { listQuery } from "~/list-query";
 
 class AssignmentService {
     constructor() {}
@@ -18,14 +19,7 @@ class AssignmentService {
         }: AssignmentListParams,
         user: User
     ) {
-        const where: any = {
-            status: status !== "all" ? status : undefined,
-            title: search
-                ? {
-                      contains: search, // name LIKE `%${search}%`
-                  }
-                : undefined,
-        };
+        const where: Record<string, any> = {};
 
         if (user.role == "student") {
             where.course = {
@@ -92,21 +86,12 @@ class AssignmentService {
             };
         }
 
-        console.log(now);
-
-        const assignments = (await prisma.assignment.findMany({
-            ...(mode === "pagination"
-                ? {
-                      take: size,
-                      skip: (page - 1) * size,
-                  }
-                : {}),
+        return listQuery<Assignment[]>({
+            query: { page, mode, status, size, search },
             where,
-        })) as Assignment[];
-
-        const total = await prisma.assignment.count({ where });
-
-        return { data: assignments, total };
+            model: "Assignment",
+            searchKey: "title",
+        });
     }
 }
 
