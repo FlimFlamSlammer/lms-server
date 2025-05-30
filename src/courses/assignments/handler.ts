@@ -78,14 +78,10 @@ export const getAssignmentsHandler = withValidation(
             query.started = "true";
         }
 
-        const { data, total } = await assignmentService.getAll(
-            params.courseId,
-            query
-        );
+        const data = await assignmentService.getAll(params.courseId, query);
 
         res.status(StatusCodes.OK).json({
             data,
-            total,
         });
     })
 );
