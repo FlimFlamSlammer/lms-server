@@ -7,6 +7,8 @@ import {
     draftAssignmentHandler,
     getAssignmentHandler,
     getAssignmentsHandler,
+    getMySubmissionsHandler,
+    getSubmissionsHandler,
     gradeAssignmentHandler,
     postAssignmentHandler,
     submitAssignmentHandler,
@@ -24,6 +26,12 @@ export const setupAssignmentsRouter: SetupRouter = (router) => {
     assignmentsRouter.get("/:id", getAssignmentHandler);
     assignmentsRouter.get("/", getAssignmentsHandler);
 
+    assignmentsRouter.get(
+        "/:id/my-submissions",
+        authMiddleware(["student"]),
+        getMySubmissionsHandler
+    );
+
     assignmentsRouter.post(
         "/:id/submit",
         authMiddleware(["student"]),
@@ -37,6 +45,8 @@ export const setupAssignmentsRouter: SetupRouter = (router) => {
     );
 
     assignmentsRouter.use(authMiddleware(["teacher", "admin", "superadmin"]));
+
+    assignmentsRouter.get("/:id/submissions", getSubmissionsHandler);
 
     assignmentsRouter.put("/:id", updateAssignmentHandler);
     assignmentsRouter.put(

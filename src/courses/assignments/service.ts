@@ -15,6 +15,7 @@ import { courseService } from "../service";
 import { User } from "~/users/types";
 import { Submission } from "@prisma/client";
 import { listQuery } from "~/list-query";
+import { ListParams } from "~/types";
 
 class AssignmentService {
     constructor() {}
@@ -139,25 +140,13 @@ class AssignmentService {
         });
     }
 
-    async getById(
-        courseId: string,
-        id: string,
-        studentId: string | null = null
-    ): Promise<Assignment | null> {
+    async getById(courseId: string, id: string): Promise<Assignment | null> {
         const assignment = (await prisma.assignment.findFirst({
             where: {
                 id,
                 courseId,
             },
         })) as Assignment | null;
-
-        if (assignment) {
-            assignment.submissions = await this.getSubmissions(
-                courseId,
-                id,
-                studentId
-            );
-        }
 
         return assignment;
     }
@@ -180,17 +169,29 @@ class AssignmentService {
         );
     }
 
-    async getSubmissions(
+    async getSubmissions(courseId: string, id: string, params: ListParams) {
+        await this.validateAssignment(courseId, id);
+
+        return await listQuery({
+            query: params,
+            model: "Submission",
+            where: {
+                assignmentId: id,
+            },
+        });
+    }
+
+    async getStudentSubmissions(
         courseId: string,
         id: string,
-        studentId: string | null
+        studentId: string
     ) {
         await this.validateAssignment(courseId, id);
 
         return (await prisma.submission.findMany({
             where: {
                 assignmentId: id,
-                studentId: studentId ? studentId : undefined,
+                studentId: studentId,
             },
         })) as AssignmentToStudent[];
     }
@@ -208,7 +209,7 @@ class AssignmentService {
             );
         }
 
-        const submission = await this.getSubmissions(
+        const submission = await this.getStudentSubmissions(
             courseId,
             id,
             data.studentId
@@ -243,7 +244,11 @@ class AssignmentService {
             );
         }
 
-        const submission = await this.getSubmissions(courseId, id, studentId);
+        const submission = await this.getStudentSubmissions(
+            courseId,
+            id,
+            studentId
+        );
 
         if (!submission.length) {
             throw createErrorWithMessage(

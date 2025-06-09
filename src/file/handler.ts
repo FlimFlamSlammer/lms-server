@@ -9,6 +9,8 @@ import { withValidation } from "~/validation";
 const UPLOAD_PATH = path.resolve("data");
 
 export const uploadHandler: Handler = (req, res) => {
+    console.log(req.body);
+
     if (!req.file) {
         throw createErrorWithMessage(
             StatusCodes.BAD_REQUEST,

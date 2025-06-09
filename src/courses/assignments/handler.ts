@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { idParamsSchema, withValidation } from "~/validation";
+import { string, z } from "zod";
+import { idParamsSchema, listQuerySchema, withValidation } from "~/validation";
 import { asyncMiddleware } from "~/async-middleware";
 import { assignmentService } from "./service";
 import { StatusCodes } from "http-status-codes";
@@ -18,7 +18,7 @@ const assignmentIdParamsSchema = z.intersection(
 
 const mutateAssignmentSchema = z.object({
     title: z.string().min(1),
-    attachmentPath: z.string().optional(),
+    description: z.string().optional(),
     startTime: z.coerce.date(),
     endTime: z.coerce.date(),
     maxGrade: z.number().min(1),
@@ -96,40 +96,6 @@ export const getAssignmentHandler = withValidation(
             params.courseId,
             params.id
         );
-
-        const user = req.user;
-        if (user && data && user.role == "student") {
-            if (
-                !assignmentService.started(params.courseId, params.id) ||
-                data.status != "posted"
-            ) {
-                res.status(StatusCodes.NOT_FOUND).json({
-                    message: "Assignment not found!",
-                });
-            }
-
-            // check if the course has a class that the student is enrolled in
-            const studentInCourse = prisma.course.findFirst({
-                where: {
-                    id: params.courseId,
-                    classes: {
-                        some: {
-                            students: {
-                                some: {
-                                    id: user.id,
-                                },
-                            },
-                        },
-                    },
-                },
-            });
-
-            if (!studentInCourse) {
-                res.status(StatusCodes.NOT_FOUND).json({
-                    message: "Assignment not found!",
-                });
-            }
-        }
 
         res.status(StatusCodes.OK).json({
             data,
@@ -214,6 +180,48 @@ export const cancelAssignmentHandler = withValidation(
 
         res.status(StatusCodes.OK).json({
             message: "Assignment canceled successfully!",
+        });
+    })
+);
+
+export const getSubmissionsHandler = withValidation(
+    {
+        querySchema: listQuerySchema,
+        paramsSchema: assignmentIdParamsSchema,
+    },
+    asyncMiddleware(async (req, res, next) => {
+        const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
+        const query = req.query as unknown as z.infer<typeof listQuerySchema>;
+
+        const data = await assignmentService.getSubmissions(
+            params.courseId,
+            params.id,
+            query
+        );
+
+        res.status(StatusCodes.OK).json({
+            data,
+        });
+    })
+);
+
+export const getMySubmissionsHandler = withValidation(
+    {
+        paramsSchema: assignmentIdParamsSchema,
+    },
+    asyncMiddleware(async (req, res, next) => {
+        const params = req.params as z.infer<typeof assignmentIdParamsSchema>;
+
+        const user = req.user;
+
+        const data = await assignmentService.getStudentSubmissions(
+            params.courseId,
+            params.id,
+            user.id
+        );
+
+        res.status(StatusCodes.OK).json({
+            data,
         });
     })
 );
