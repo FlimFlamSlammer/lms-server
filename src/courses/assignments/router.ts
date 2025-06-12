@@ -49,11 +49,11 @@ export const setupAssignmentsRouter: SetupRouter = (router) => {
     assignmentsRouter.get("/:id/submissions", getSubmissionsHandler);
 
     assignmentsRouter.put("/:id", updateAssignmentHandler);
-    assignmentsRouter.put(
+
+    assignmentsRouter.patch(
         "/:id/submissions/:studentId/grade",
         gradeAssignmentHandler
     );
-
     assignmentsRouter.patch("/:id/draft", draftAssignmentHandler);
     assignmentsRouter.patch("/:id/post", postAssignmentHandler);
     assignmentsRouter.patch("/:id/cancel", cancelAssignmentHandler);
