@@ -18,8 +18,15 @@ const ALLOWED_EXTENTIONS = [
     ".docx",
     ".doc",
     ".xlsx",
+    ".pptx",
+    ".ppt",
+    ".odt",
+    ".odp",
+    ".ods",
+    ".txt",
     ".jpg",
     ".jpeg",
+    ".webp",
 ];
 
 export const uploadFile = multer({
