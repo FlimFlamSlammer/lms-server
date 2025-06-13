@@ -114,7 +114,7 @@ export const getTeachersNotInCourseHandler = withValidation(
         const teachers = await courseService.getTeachersNotInCourse(
             req.params.id
         );
-        res.status(StatusCodes.ACCEPTED).json({
+        res.status(StatusCodes.OK).json({
             data: teachers,
         });
     })
@@ -129,7 +129,7 @@ export const getTeachersHandler = withValidation(
         const query = req.query as unknown as z.infer<typeof listQuerySchema>;
         const data = await courseService.getTeachers(req.params.id, query);
 
-        res.status(StatusCodes.ACCEPTED).json({
+        res.status(StatusCodes.OK).json({
             data,
         });
     })
@@ -187,7 +187,7 @@ export const getClassesNotInCourseHandler = withValidation(
         const classes = await courseService.getClassesNotInCourse(
             req.params.id
         );
-        res.status(StatusCodes.ACCEPTED).json({
+        res.status(StatusCodes.OK).json({
             data: classes,
         });
     })
@@ -202,7 +202,7 @@ export const getClassesHandler = withValidation(
         const query = req.query as unknown as z.infer<typeof listQuerySchema>;
         const data = await courseService.getClasses(req.params.id, query);
 
-        res.status(StatusCodes.ACCEPTED).json({
+        res.status(StatusCodes.OK).json({
             data,
         });
     })

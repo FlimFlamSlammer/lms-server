@@ -129,7 +129,7 @@ export const getStudentsHandler = withValidation(
 
         const students = await classService.getStudents(id, query);
 
-        res.status(StatusCodes.ACCEPTED).json({
+        res.status(StatusCodes.OK).json({
             data: students,
         });
     })

@@ -251,7 +251,7 @@ export const submitAssignmentHandler = withValidation(
             studentId: req.user.id,
         });
 
-        res.status(StatusCodes.ACCEPTED).json({
+        res.status(StatusCodes.OK).json({
             message: "Assignment submitted successfully!",
         });
     })
@@ -284,7 +284,7 @@ export const gradeAssignmentHandler = withValidation(
             req.body
         );
 
-        res.status(StatusCodes.ACCEPTED).json({
+        res.status(StatusCodes.OK).json({
             message: "Assignment graded successfully!",
         });
     })
