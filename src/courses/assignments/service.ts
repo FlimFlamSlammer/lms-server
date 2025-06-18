@@ -205,7 +205,7 @@ class AssignmentService {
         if (!(await this.canSubmit(courseId, id))) {
             throw createErrorWithMessage(
                 StatusCodes.FORBIDDEN,
-                "Assignment hasn't started yet!"
+                "Assignment hasn't started, or is locked!"
             );
         }
 

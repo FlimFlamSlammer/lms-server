@@ -3,6 +3,7 @@ import { courseService } from "./service";
 import { idParamsSchema, withValidation } from "~/validation";
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
+import { createErrorWithMessage } from "~/error";
 
 const courseAuthMiddlewareSchema = z.object({
     id: z.string().optional(),
@@ -15,9 +16,10 @@ export const courseAccessMiddleware = withValidation(
     },
     asyncMiddleware(async (req, res, next) => {
         if (!req.user) {
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-                message: "forgot to use auth middleware",
-            });
+            throw createErrorWithMessage(
+                StatusCodes.INTERNAL_SERVER_ERROR,
+                "forgot to use authMiddleware"
+            );
             return;
         }
 
@@ -26,9 +28,10 @@ export const courseAccessMiddleware = withValidation(
         if (await courseService.userInCourse(id, req.user)) {
             next();
         } else {
-            res.status(StatusCodes.UNAUTHORIZED).json({
-                message: "Currently logged in user cannot access this course.",
-            });
+            throw createErrorWithMessage(
+                StatusCodes.FORBIDDEN,
+                "Currently logged in user cannot access course!"
+            );
         }
     })
 );
