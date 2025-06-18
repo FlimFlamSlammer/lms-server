@@ -178,6 +178,13 @@ class AssignmentService {
             where: {
                 assignmentId: id,
             },
+            include: {
+                student: {
+                    include: {
+                        user: true,
+                    },
+                },
+            },
         });
     }
 
