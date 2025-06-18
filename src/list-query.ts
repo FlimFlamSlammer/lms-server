@@ -8,6 +8,7 @@ export type ListQueryParams = {
     query: ListParams;
     model: Prisma.ModelName;
     where?: Record<string, unknown>;
+    include?: Record<string, unknown>;
     searchKey?: string;
     statusKey?: string;
 };
@@ -15,6 +16,7 @@ export type ListQueryParams = {
 export const listQuery = async <T>({
     query: { search, mode, page, size, status },
     where = {},
+    include,
     model,
     searchKey,
     statusKey = "status",
@@ -39,6 +41,7 @@ export const listQuery = async <T>({
               }
             : {}),
         where: finalWhere,
+        include,
     })) as T;
 
     const total = (await table.count({ where: finalWhere })) as number;
