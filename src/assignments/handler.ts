@@ -26,11 +26,10 @@ export const getAssignmentsHandler = withValidation(
             query.started = "true";
         }
 
-        const { data, total } = await assignmentService.getAll(query, req.user);
+        const data = await assignmentService.getAll(query, req.user);
 
         res.status(StatusCodes.OK).json({
             data,
-            total,
         });
     })
 );
