@@ -28,7 +28,7 @@ export const createClassHandler = withValidation(
     })
 );
 
-const updateClassBodySchema = classSchema;
+const updateClassBodySchema = classSchema.omit({ status: true });
 
 export const updateClassHandler = withValidation(
     {

@@ -30,7 +30,7 @@ export const createCourseHandler = withValidation(
     })
 );
 
-const updateCourseBodySchema = courseSchema;
+const updateCourseBodySchema = courseSchema.omit({ status: true });
 
 export const updateCourseHandler = withValidation(
     {

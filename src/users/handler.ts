@@ -156,9 +156,14 @@ export const getUserHandler = withValidation(
     })
 );
 
-const updateUserDataSchema = baseUserDataSchema.omit({ role: true });
+const updateUserDataSchema = baseUserDataSchema.omit({
+    role: true,
+    status: true,
+    password: true,
+    needsPasswordChange: true,
+});
 const updateUserBodySchema = z.object({
-    userData: updateUserDataSchema.partial(),
+    userData: updateUserDataSchema,
     roleData: z
         .intersection(studentDataSchema.partial(), teacherDataSchema.partial())
         .optional(),
