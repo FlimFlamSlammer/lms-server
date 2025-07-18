@@ -89,12 +89,24 @@ export const createUserHandler = withValidation(
     })
 );
 
+const listUsersQuerySchema = z.intersection(
+    z.object({
+        role: z
+            .enum([...validUserRoles, "all"])
+            .optional()
+            .default("all"),
+    }),
+    listQuerySchema
+);
+
 export const getUsersHandler = withValidation(
     {
-        querySchema: listQuerySchema,
+        querySchema: listUsersQuerySchema,
     },
     asyncMiddleware(async (req, res, next) => {
-        const query = req.query as unknown as z.infer<typeof listQuerySchema>;
+        const query = req.query as unknown as z.infer<
+            typeof listUsersQuerySchema
+        >;
 
         const data = await userService.getAll(query);
         res.status(StatusCodes.OK).json({
@@ -148,7 +160,7 @@ const updateUserDataSchema = baseUserDataSchema.omit({ role: true });
 const updateUserBodySchema = z.object({
     userData: updateUserDataSchema.partial(),
     roleData: z
-        .union([studentDataSchema.partial(), teacherDataSchema.partial()])
+        .intersection(studentDataSchema.partial(), teacherDataSchema.partial())
         .optional(),
 });
 export const updateUserHandler = withValidation(

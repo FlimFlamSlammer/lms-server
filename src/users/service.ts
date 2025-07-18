@@ -12,6 +12,7 @@ import {
     UpdateTeacherDTO,
     UpdateUserDTO,
     User,
+    UserListParams,
 } from "./types";
 import { StatusCodes } from "http-status-codes";
 import { ListParams } from "~/types";
@@ -93,11 +94,14 @@ class UserService {
         return null;
     }
 
-    async getAll(query: ListParams) {
+    async getAll(query: UserListParams) {
         return await listQuery<User[]>({
             query,
             searchKey: "name",
             model: "User",
+            where: {
+                role: query.role == "all" ? undefined : query.role,
+            },
         });
     }
 

@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { Status } from "~/types";
+import { ListParams, Status } from "~/types";
 
 export const validUserRoles = [
     "student",
@@ -51,3 +51,7 @@ export type CreateTeacherDTO = Omit<Teacher, "id">;
 export type UpdateUserDTO = Partial<Omit<User, "role" | "id">>;
 export type UpdateStudentDTO = Partial<CreateStudentDTO>;
 export type UpdateTeacherDTO = Partial<CreateTeacherDTO>;
+
+export type UserListParams = ListParams & {
+    role: UserRole | "all";
+};
