@@ -258,7 +258,7 @@ export const submitAssignmentHandler = withValidation(
 );
 
 const gradeAssignmentBodySchema = z.object({
-    grade: z.string(),
+    grade: z.coerce.number(),
 });
 
 const gradeAssignmentParamsSchema = z.intersection(
@@ -277,6 +277,7 @@ export const gradeAssignmentHandler = withValidation(
         const params = req.params as z.infer<
             typeof gradeAssignmentParamsSchema
         >;
+        console.log(req.body);
         await assignmentService.grade(
             params.courseId,
             params.id,

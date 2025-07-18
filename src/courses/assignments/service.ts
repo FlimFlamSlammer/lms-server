@@ -244,12 +244,6 @@ class AssignmentService {
         data: UpdateSubmissionDTO
     ): Promise<Submission> {
         await this.validateAssignment(courseId, id);
-        if (!(await this.canSubmit(courseId, id))) {
-            throw createErrorWithMessage(
-                StatusCodes.FORBIDDEN,
-                "Assignment hasn't started yet!"
-            );
-        }
 
         const submission = await this.getStudentSubmissions(
             courseId,
@@ -270,9 +264,11 @@ class AssignmentService {
                     studentId,
                     assignmentId: id,
                 },
+            },
+            data: {
+                grade: data.grade,
                 gradedAt: new Date(),
             },
-            data,
         });
     }
 }
