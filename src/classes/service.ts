@@ -84,6 +84,7 @@ class ClassService {
                         },
                     },
                 },
+                status: "active",
             },
             include: {
                 student: true,

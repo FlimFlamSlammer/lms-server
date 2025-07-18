@@ -217,6 +217,7 @@ class CourseService {
                         id,
                     },
                 },
+                status: "active",
             },
         })) as Class[];
     }
@@ -228,6 +229,9 @@ class CourseService {
                     none: {
                         id,
                     },
+                },
+                user: {
+                    status: "active",
                 },
             },
             include: {
